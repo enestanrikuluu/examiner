@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "AI Examiner",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Register",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "forgotPassword": "Forgot Password",
+    "signInWithGoogle": "Sign in with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "exams": {
+    "title": "Exams",
+    "createExam": "Create Exam",
+    "startExam": "Start Exam",
+    "submitExam": "Submit Exam",
+    "timeRemaining": "Time Remaining",
+    "questions": "Questions",
+    "score": "Score",
+    "passed": "Passed",
+    "failed": "Failed",
+    "results": "Results",
+    "feedback": "Feedback",
+    "practiceMode": "Practice Mode",
+    "mockExam": "Mock Exam",
+    "highStakes": "High-Stakes Exam"
+  },
+  "isg": {
+    "title": "Occupational Health and Safety",
+    "classA": "Class A OHS Specialist",
+    "classB": "Class B OHS Specialist",
+    "classC": "Class C OHS Specialist"
+  }
+}

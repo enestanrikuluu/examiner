@@ -1,0 +1,15 @@
+[project]
+name = "examiner-shared"
+version = "0.1.0"
+description = "Shared schemas, enums, and constants for AI Examiner"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.10.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["python*"]

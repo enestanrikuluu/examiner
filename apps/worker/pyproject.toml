@@ -1,0 +1,42 @@
+[project]
+name = "examiner-worker"
+version = "0.1.0"
+description = "AI Examiner Background Worker"
+requires-python = ">=3.11"
+dependencies = [
+    "celery[redis]>=5.4.0",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "asyncpg>=0.30.0",
+    "redis>=5.2.0",
+    "boto3>=1.35.0",
+    "anthropic>=0.40.0",
+    "groq>=0.12.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "pgvector>=0.3.6",
+    "pymupdf>=1.25.0",
+    "sentence-transformers>=3.3.0",
+    "tenacity>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "TCH", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "AI Examiner",
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "create": "Oluştur",
+    "submit": "Gönder",
+    "back": "Geri",
+    "next": "İleri",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "export": "Dışa Aktar",
+    "yes": "Evet",
+    "no": "Hayır"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "email": "E-posta",
+    "password": "Şifre",
+    "fullName": "Ad Soyad",
+    "forgotPassword": "Şifremi Unuttum",
+    "signInWithGoogle": "Google ile Giriş Yap",
+    "noAccount": "Hesabınız yok mu?",
+    "hasAccount": "Zaten hesabınız var mı?"
+  },
+  "exams": {
+    "title": "Sınavlar",
+    "createExam": "Sınav Oluştur",
+    "startExam": "Sınava Başla",
+    "submitExam": "Sınavı Gönder",
+    "timeRemaining": "Kalan Süre",
+    "questions": "Sorular",
+    "score": "Puan",
+    "passed": "Geçti",
+    "failed": "Kaldı",
+    "results": "Sonuçlar",
+    "feedback": "Geri Bildirim",
+    "practiceMode": "Alıştırma Modu",
+    "mockExam": "Deneme Sınavı",
+    "highStakes": "Gerçek Sınav"
+  },
+  "isg": {
+    "title": "İş Sağlığı ve Güvenliği",
+    "classA": "A Sınıfı İSG Uzmanı",
+    "classB": "B Sınıfı İSG Uzmanı",
+    "classC": "C Sınıfı İSG Uzmanı"
+  }
+}

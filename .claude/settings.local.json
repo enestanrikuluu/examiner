@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(node --version:*)",
+      "Bash(npx --version)",
+      "Bash(npm install:*)",
+      "Bash(python3 -m venv:*)",
+      "Bash(source /Users/enestanrikulu/examiner/.venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(mypy:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pytest:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

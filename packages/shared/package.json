@@ -1,0 +1,13 @@
+{
+  "name": "@examiner/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "ts/index.ts",
+  "types": "ts/index.ts",
+  "exports": {
+    ".": "./ts/index.ts",
+    "./enums": "./ts/enums.ts",
+    "./types": "./ts/types.ts",
+    "./api-contracts": "./ts/api-contracts.ts"
+  }
+}
