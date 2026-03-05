@@ -9,14 +9,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY apps/api/pyproject.toml .
 COPY packages/shared/python /packages/shared/python
 
+# Create stub package so pip can install dependencies
+RUN mkdir -p src && touch src/__init__.py \
+    && pip install --no-cache-dir -e .
+
 # Dev stage: includes test/lint tools + hot reload
 FROM base AS dev
 RUN pip install --no-cache-dir -e ".[dev]"
 COPY apps/api/ .
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-# Production stage: only runtime deps
+# Production stage
 FROM base AS prod
-RUN pip install --no-cache-dir -e .
 COPY apps/api/ .
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

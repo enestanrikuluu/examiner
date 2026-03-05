@@ -9,14 +9,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY apps/worker/pyproject.toml .
 COPY packages/shared/python /packages/shared/python
 
+# Create stub package so pip can install dependencies
+RUN mkdir -p src && touch src/__init__.py \
+    && pip install --no-cache-dir -e .
+
 # Dev stage
 FROM base AS dev
 RUN pip install --no-cache-dir -e ".[dev]"
 COPY apps/worker/ .
 CMD ["celery", "-A", "src.celery_app", "worker", "-l", "debug", "-Q", "default,grading,generation,export,calibration"]
 
-# Production stage: only runtime deps
+# Production stage
 FROM base AS prod
-RUN pip install --no-cache-dir -e .
 COPY apps/worker/ .
 CMD ["celery", "-A", "src.celery_app", "worker", "-l", "info", "-Q", "default,grading,generation,export,calibration", "-c", "2"]

@@ -33,10 +33,9 @@ out/
 *.swo
 *~
 
-# Environment
+# Environment (keep .env.production as a template)
 .env
 .env.local
-.env.production
 
 # Docker
 docker-compose.override.yml

@@ -19,7 +19,8 @@
       "Bash(python -m pytest:*)",
       "Bash(ls:*)",
       "Bash(npx --no-install tsc --noEmit)",
-      "Bash(node_modules/.bin/tsc:*)"
+      "Bash(node_modules/.bin/tsc:*)",
+      "Bash(git add:*)"
     ]
   }
 }
