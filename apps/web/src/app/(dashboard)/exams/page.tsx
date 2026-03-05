@@ -40,12 +40,20 @@ export default function ExamsPage() {
           </p>
         </div>
         {isInstructor && (
-          <Link
-            href="/exams/new"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Yeni Sınav
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/exams/isg"
+              className="rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            >
+              ISG Sınavı
+            </Link>
+            <Link
+              href="/exams/new"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Yeni Sınav
+            </Link>
+          </div>
         )}
       </div>
 

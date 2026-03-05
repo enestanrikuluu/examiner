@@ -16,7 +16,8 @@
       "Bash(npm run build:*)",
       "Bash(python -m ruff check:*)",
       "Bash(python -m mypy:*)",
-      "Bash(python -m pytest:*)"
+      "Bash(python -m pytest:*)",
+      "Bash(ls:*)"
     ]
   }
 }

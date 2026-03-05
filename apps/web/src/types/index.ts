@@ -149,6 +149,12 @@ export interface Grade {
   is_correct: boolean | null;
   feedback: string | null;
   confidence: number | null;
+  rubric_scores: Array<{
+    criterion_id: string;
+    score: number;
+    max_score: number;
+    feedback?: string;
+  }> | null;
   graded_at: string;
 }
 
@@ -202,4 +208,73 @@ export interface GenerateRequest {
   difficulty?: number;
   locale: string;
   use_rag: boolean;
+}
+
+// ISG types
+
+export interface ISGSubtopic {
+  id: string;
+  name: string;
+}
+
+export interface ISGTopic {
+  id: string;
+  name: string;
+  subtopics: ISGSubtopic[];
+}
+
+export interface ISGTopicWeight {
+  topic_id: string;
+  topic_name: string;
+  weight: number;
+  question_count: number;
+}
+
+export interface ISGBlueprint {
+  exam_class: string;
+  title: string;
+  description: string;
+  total_questions: number;
+  time_limit_minutes: number;
+  pass_score: number;
+  topic_weights: ISGTopicWeight[];
+  allowed_question_types: string[];
+}
+
+export interface ISGRubricCriterion {
+  id: string;
+  description: string;
+  max_points: number;
+}
+
+export interface ISGRubric {
+  rubric_id: string;
+  name: string;
+  description: string;
+  max_score: number;
+  criteria: ISGRubricCriterion[];
+}
+
+export interface ISGExamResult {
+  template_id: string;
+  exam_class: string;
+  title: string;
+  total_questions: number;
+  topic_distribution: ISGTopicWeight[];
+}
+
+export interface ISGGenerateTopicResult {
+  topic_id: string;
+  topic_name: string;
+  requested_count: number;
+  generated_count: number;
+  errors: string[];
+}
+
+export interface ISGGenerateResult {
+  template_id: string;
+  total_generated: number;
+  total_requested: number;
+  topic_results: ISGGenerateTopicResult[];
+  trace_ids: string[];
 }
