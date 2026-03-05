@@ -7,15 +7,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY apps/api/pyproject.toml .
-RUN pip install --no-cache-dir -e ".[dev]"
-
 COPY packages/shared/python /packages/shared/python
-COPY apps/api/ .
 
-# Dev stage with hot reload
+# Dev stage: includes test/lint tools + hot reload
 FROM base AS dev
+RUN pip install --no-cache-dir -e ".[dev]"
+COPY apps/api/ .
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-# Production stage
+# Production stage: only runtime deps
 FROM base AS prod
+RUN pip install --no-cache-dir -e .
+COPY apps/api/ .
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

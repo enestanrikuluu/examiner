@@ -19,17 +19,24 @@ services:
       target: dev
     volumes:
       - ./apps/api:/app
+      - ./packages/shared/python:/packages/shared/python
     environment:
       DEBUG: "true"
+      JWT_SECRET: dev-secret-not-for-production
+      CORS_ORIGINS: '["http://localhost:3000"]'
     ports:
       - "8000:8000"
+    healthcheck:
+      disable: true
 
   worker:
     build:
       context: .
       dockerfile: docker/worker.Dockerfile
+      target: dev
     volumes:
       - ./apps/worker:/app
+      - ./packages/shared/python:/packages/shared/python
     command: celery -A src.celery_app worker -l debug -Q default,grading,generation,export,calibration
 
   web:

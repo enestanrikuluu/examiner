@@ -8,6 +8,15 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.core.config import settings
 from src.core.database import Base
 
+# Import all models so Base.metadata is populated for autogenerate
+from src.users.models import User, Org, OrgMembership  # noqa: F401
+from src.exams.models import ExamTemplate  # noqa: F401
+from src.questions.models import QuestionItem  # noqa: F401
+from src.sessions.models import ExamSession, Response  # noqa: F401
+from src.grading.models import Grade  # noqa: F401
+from src.ai.models import ModelTrace, PromptVersion, Document, DocumentChunk  # noqa: F401
+from src.adaptive.models import ItemParameter, ThetaHistory  # noqa: F401
+
 config = context.config
 
 if config.config_file_name is not None:

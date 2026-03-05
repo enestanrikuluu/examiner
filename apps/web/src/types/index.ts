@@ -335,3 +335,87 @@ export interface ThetaResult {
   current_se: number | null;
   history: ThetaHistoryEntry[];
 }
+
+// Analytics types
+
+export interface ScoreBucket {
+  range_start: number;
+  range_end: number;
+  count: number;
+}
+
+export interface ScoreDistribution {
+  template_id: string;
+  total_sessions: number;
+  graded_sessions: number;
+  mean_score: number | null;
+  median_score: number | null;
+  std_dev: number | null;
+  min_score: number | null;
+  max_score: number | null;
+  pass_rate: number | null;
+  distribution: ScoreBucket[];
+}
+
+export interface ItemAnalysisEntry {
+  question_id: string;
+  stem_preview: string;
+  question_type: string;
+  topic: string | null;
+  response_count: number;
+  correct_count: number;
+  p_value: number;
+  discrimination: number | null;
+  mean_score: number | null;
+  max_score: number | null;
+}
+
+export interface ItemAnalysis {
+  template_id: string;
+  total_items: number;
+  items: ItemAnalysisEntry[];
+}
+
+export interface TopicMasteryEntry {
+  topic: string;
+  question_count: number;
+  response_count: number;
+  correct_count: number;
+  mastery_rate: number;
+}
+
+export interface PerformancePoint {
+  date: string;
+  session_count: number;
+  mean_percentage: number | null;
+}
+
+export interface AICostByTask {
+  task_type: string;
+  call_count: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  avg_latency_ms: number | null;
+}
+
+export interface AICostSummary {
+  total_cost_usd: number;
+  total_calls: number;
+  by_task: AICostByTask[];
+}
+
+export interface SessionSummary {
+  total_sessions: number;
+  in_progress: number;
+  submitted: number;
+  graded: number;
+  avg_percentage: number | null;
+  pass_rate: number | null;
+}
+
+export interface DashboardData {
+  session_summary: SessionSummary;
+  recent_scores: PerformancePoint[];
+  top_difficult_items: ItemAnalysisEntry[];
+  ai_cost_summary: AICostSummary | null;
+}
