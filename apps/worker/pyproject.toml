@@ -15,7 +15,6 @@ dependencies = [
     "pydantic-settings>=2.6.0",
     "pgvector>=0.3.6",
     "pymupdf>=1.25.0",
-    "sentence-transformers>=3.3.0",
     "tenacity>=9.0.0",
 ]
 

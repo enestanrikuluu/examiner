@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY apps/api/pyproject.toml .
 COPY packages/shared/python /packages/shared/python
 
+# Install CPU-only PyTorch first (prevents sentence-transformers from pulling ~4GB CUDA)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
 # Create stub package so pip can install dependencies
 RUN mkdir -p src && touch src/__init__.py \
     && pip install --no-cache-dir -e .
