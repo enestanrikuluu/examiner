@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(RequestIdMiddleware)
 
+    from src.adaptive.router import router as adaptive_router
     from src.ai.router import document_router
     from src.ai.router import router as ai_router
     from src.auth.router import router as auth_router
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(ai_router, prefix=settings.api_prefix)
     app.include_router(document_router, prefix=settings.api_prefix)
     app.include_router(isg_router, prefix=settings.api_prefix)
+    app.include_router(adaptive_router, prefix=settings.api_prefix)
 
     return app
 

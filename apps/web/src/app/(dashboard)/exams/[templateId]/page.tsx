@@ -10,6 +10,7 @@ import type {
   QuestionItem,
   QuestionItemListResponse,
   ExamSession,
+  AdaptiveSession,
   DocumentInfo,
   GenerateResult,
   GeneratedQuestion,
@@ -603,6 +604,17 @@ export default function TemplateDetailPage() {
     }
   }
 
+  async function handleStartAdaptive() {
+    try {
+      const adaptive = await api.post<AdaptiveSession>("/adaptive/sessions", {
+        template_id: templateId,
+      });
+      router.push(`/exam/adaptive/${adaptive.session_id}`);
+    } catch {
+      // handled
+    }
+  }
+
   function handleGenerated(
     questions: GeneratedQuestion[],
     errors: string[]
@@ -695,12 +707,20 @@ export default function TemplateDetailPage() {
         </div>
         <div className="flex gap-2">
           {template.is_published && (
-            <button
-              onClick={handleStartSession}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-            >
-              Sınava Başla
-            </button>
+            <>
+              <button
+                onClick={handleStartAdaptive}
+                className="rounded-md border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50"
+              >
+                Adaptif Sinav
+              </button>
+              <button
+                onClick={handleStartSession}
+                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+              >
+                Sinava Basla
+              </button>
+            </>
           )}
           {isOwner && !template.is_published && (
             <button

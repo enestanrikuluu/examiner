@@ -278,3 +278,60 @@ export interface ISGGenerateResult {
   topic_results: ISGGenerateTopicResult[];
   trace_ids: string[];
 }
+
+// Adaptive / IRT types
+
+export interface AdaptiveSession {
+  session_id: string;
+  template_id: string;
+  status: string;
+  theta: number | null;
+  se: number | null;
+  items_administered: number;
+  max_items: number;
+}
+
+export interface AdaptiveNextQuestion {
+  question_id: string;
+  stem: string;
+  question_type: string;
+  options: MCQOption[] | null;
+  step: number;
+  theta: number;
+  se: number;
+  is_finished: boolean;
+  finish_reason: string | null;
+}
+
+export interface AdaptiveNoMore {
+  is_finished: true;
+  finish_reason: string;
+  theta: number;
+  se: number;
+  items_administered: number;
+}
+
+export interface AdaptiveRespondResult {
+  is_correct: boolean;
+  theta: number;
+  se: number;
+  step: number;
+  is_finished: boolean;
+  finish_reason: string | null;
+}
+
+export interface ThetaHistoryEntry {
+  step: number;
+  question_id: string;
+  theta: number;
+  se: number;
+  is_correct: boolean;
+  information: number | null;
+}
+
+export interface ThetaResult {
+  session_id: string;
+  current_theta: number | null;
+  current_se: number | null;
+  history: ThetaHistoryEntry[];
+}
