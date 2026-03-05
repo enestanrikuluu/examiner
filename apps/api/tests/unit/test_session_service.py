@@ -167,3 +167,151 @@ async def test_submit_session_success(service: SessionService) -> None:
     ):
         result = await service.submit_session(session.id, user_id)
         assert result.id == session.id
+
+
+# --- Resume ---
+
+
+@pytest.mark.asyncio
+async def test_resume_in_progress_session(service: SessionService) -> None:
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="in_progress")
+    session.integrity_log = []
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        patch.object(service.response_repo, "list_by_session", return_value=[]),
+    ):
+        result_session, responses = await service.resume_session(
+            session.id, user_id
+        )
+        assert result_session.id == session.id
+        assert responses == []
+
+
+@pytest.mark.asyncio
+async def test_resume_created_session_starts_it(
+    service: SessionService,
+) -> None:
+    user_id = uuid.uuid4()
+    template = _make_template(time_limit_minutes=60)
+    session = _make_session(user_id, template.id, status="created")
+    session.integrity_log = []
+
+    started_session = _make_session(user_id, template.id, status="in_progress")
+    started_session.id = session.id
+    started_session.expires_at = None
+    started_session.integrity_log = []
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        patch.object(service.template_repo, "get_by_id", return_value=template),
+        patch.object(
+            service.session_repo, "update", return_value=started_session
+        ),
+        patch.object(service.response_repo, "list_by_session", return_value=[]),
+    ):
+        result_session, _responses = await service.resume_session(
+            session.id, user_id
+        )
+        assert result_session.status == "in_progress"
+
+
+@pytest.mark.asyncio
+async def test_resume_submitted_session_raises(
+    service: SessionService,
+) -> None:
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="submitted")
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        pytest.raises(ValidationError, match="Cannot resume"),
+    ):
+        await service.resume_session(session.id, user_id)
+
+
+# --- Heartbeat ---
+
+
+@pytest.mark.asyncio
+async def test_heartbeat_returns_session(service: SessionService) -> None:
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="in_progress")
+
+    with patch.object(service.session_repo, "get_by_id", return_value=session):
+        result = await service.heartbeat(session.id, user_id)
+        assert result.status == "in_progress"
+
+
+@pytest.mark.asyncio
+async def test_heartbeat_auto_submits_expired(
+    service: SessionService,
+) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="in_progress")
+    session.expires_at = datetime.now(UTC) - timedelta(minutes=5)
+
+    submitted_session = _make_session(user_id, session.template_id, status="submitted")
+    submitted_session.id = session.id
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        patch.object(
+            service.session_repo, "update", return_value=submitted_session
+        ),
+    ):
+        result = await service.heartbeat(session.id, user_id)
+        assert result.status == "submitted"
+
+
+# --- Integrity Logging ---
+
+
+@pytest.mark.asyncio
+async def test_log_integrity_events(service: SessionService) -> None:
+    from src.sessions.schemas import IntegrityEvent
+
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="in_progress")
+    session.integrity_log = []
+
+    events = [
+        IntegrityEvent(event_type="tab_switch", details={"count": 1}),
+        IntegrityEvent(event_type="focus_loss"),
+    ]
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        patch.object(service.session_repo, "update", return_value=session) as mock_update,
+    ):
+        await service.log_integrity_events(session.id, user_id, events)
+        call_kwargs = mock_update.call_args
+        assert call_kwargs is not None
+        log = call_kwargs.kwargs.get("integrity_log", [])
+        assert len(log) == 2
+        assert log[0]["event_type"] == "tab_switch"
+        assert log[1]["event_type"] == "focus_loss"
+
+
+@pytest.mark.asyncio
+async def test_log_integrity_not_in_progress_ignored(
+    service: SessionService,
+) -> None:
+    from src.sessions.schemas import IntegrityEvent
+
+    user_id = uuid.uuid4()
+    session = _make_session(user_id, uuid.uuid4(), status="submitted")
+
+    with (
+        patch.object(service.session_repo, "get_by_id", return_value=session),
+        patch.object(service.session_repo, "update") as mock_update,
+    ):
+        await service.log_integrity_events(
+            session.id,
+            user_id,
+            [IntegrityEvent(event_type="tab_switch")],
+        )
+        mock_update.assert_not_called()

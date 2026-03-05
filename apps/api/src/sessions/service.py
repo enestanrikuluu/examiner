@@ -1,6 +1,7 @@
 import random
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +10,7 @@ from src.exams.repository import ExamTemplateRepository
 from src.questions.repository import QuestionItemRepository
 from src.sessions.models import ExamSession, Response
 from src.sessions.repository import ResponseRepository, SessionRepository
-from src.sessions.schemas import ResponseSubmit
+from src.sessions.schemas import IntegrityEvent, ResponseSubmit
 
 
 class SessionService:
@@ -164,6 +165,70 @@ class SessionService:
         if session.user_id != user_id:
             raise ForbiddenError("This is not your session")
         return session
+
+    async def resume_session(
+        self, session_id: uuid.UUID, user_id: uuid.UUID
+    ) -> tuple[ExamSession, list[Response]]:
+        """Resume an in-progress session, returning session + existing responses."""
+        session = await self._get_user_session(session_id, user_id)
+
+        if session.status == "created":
+            session = await self.start_session(session_id, user_id)
+        elif session.status not in ("in_progress",):
+            raise ValidationError(
+                f"Cannot resume session in '{session.status}' status"
+            )
+
+        # Auto-submit if expired
+        if session.expires_at is not None and datetime.now(UTC) > session.expires_at:
+            session = await self.session_repo.update(
+                session, status="submitted", submitted_at=session.expires_at
+            )
+            responses = await self.response_repo.list_by_session(session_id)
+            return session, responses
+
+        responses = await self.response_repo.list_by_session(session_id)
+        return session, responses
+
+    async def heartbeat(
+        self, session_id: uuid.UUID, user_id: uuid.UUID
+    ) -> ExamSession:
+        """Heartbeat to check session status and auto-submit on expiry."""
+        session = await self._get_user_session(session_id, user_id)
+
+        if session.status != "in_progress":
+            return session
+
+        # Auto-submit if expired
+        if session.expires_at is not None and datetime.now(UTC) > session.expires_at:
+            return await self.session_repo.update(
+                session, status="submitted", submitted_at=session.expires_at
+            )
+
+        return session
+
+    async def log_integrity_events(
+        self,
+        session_id: uuid.UUID,
+        user_id: uuid.UUID,
+        events: list[IntegrityEvent],
+    ) -> None:
+        """Append integrity events to the session integrity_log."""
+        session = await self._get_user_session(session_id, user_id)
+        if session.status != "in_progress":
+            return
+
+        existing_log: list[dict[str, Any]] = list(session.integrity_log or [])
+        now = datetime.now(UTC).isoformat()
+
+        for event in events:
+            existing_log.append({
+                "timestamp": now,
+                "event_type": event.event_type,
+                "details": event.details,
+            })
+
+        await self.session_repo.update(session, integrity_log=existing_log)
 
     def _check_expired(self, session: ExamSession) -> None:
         if session.expires_at is not None and datetime.now(UTC) > session.expires_at:

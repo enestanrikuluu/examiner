@@ -1,92 +1,93 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api-client";
-import type {
-  ExamSession,
-  QuestionItem,
-  QuestionItemListResponse,
-} from "@/types";
+import { useCallback, useEffect, useRef } from "react";
+import { useExamSessionStore } from "@/lib/stores/exam-session-store";
+import IntegrityGuard from "@/components/exam/IntegrityGuard";
+import QuestionRenderer from "@/components/exam/QuestionRenderer";
+import Timer from "@/components/exam/Timer";
 
 export default function ExamSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
-  const [session, setSession] = useState<ExamSession | null>(null);
-  const [questions, setQuestions] = useState<QuestionItem[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, unknown>>({});
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const {
+    session,
+    questions,
+    answers,
+    flags,
+    currentIndex,
+    loading,
+    submitting,
+    error,
+    initialize,
+    setCurrentIndex,
+    saveAnswer,
+    submitExam,
+    heartbeat,
+  } = useExamSessionStore();
+
+  // Initialize session
   useEffect(() => {
-    async function load() {
-      try {
-        let sess = await api.get<ExamSession>(`/sessions/${sessionId}`);
+    initialize(sessionId);
+  }, [sessionId, initialize]);
 
-        if (sess.status === "created") {
-          sess = await api.post<ExamSession>(
-            `/sessions/${sessionId}/start`
-          );
-        }
-
-        if (sess.status === "submitted" || sess.status === "graded") {
-          router.push(`/exam/${sessionId}/result`);
-          return;
-        }
-
-        setSession(sess);
-
-        const qData = await api.get<QuestionItemListResponse>(
-          `/templates/${sess.template_id}/questions`
-        );
-
-        // Reorder questions based on session.question_order
-        if (sess.question_order) {
-          const qMap = new Map(qData.items.map((q) => [q.id, q]));
-          const ordered = sess.question_order
-            .map((id) => qMap.get(id))
-            .filter((q): q is QuestionItem => q !== undefined);
-          setQuestions(ordered);
-        } else {
-          setQuestions(qData.items);
-        }
-      } catch {
-        // handled
-      } finally {
-        setLoading(false);
-      }
+  // Redirect if already submitted/graded
+  useEffect(() => {
+    if (
+      session &&
+      (session.status === "submitted" || session.status === "graded")
+    ) {
+      router.push(`/exam/${sessionId}/result`);
     }
-    load();
-  }, [sessionId, router]);
+  }, [session, sessionId, router]);
 
-  async function saveAnswer(questionId: string, answer: unknown) {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
-    try {
-      await api.post(`/sessions/${sessionId}/responses`, {
-        question_id: questionId,
-        answer,
-      });
-    } catch {
-      // autosave failed silently
-    }
-  }
+  // Periodic heartbeat (every 30s)
+  useEffect(() => {
+    if (session?.status !== "in_progress") return;
+
+    heartbeatRef.current = setInterval(() => {
+      heartbeat();
+    }, 30_000);
+
+    return () => {
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+    };
+  }, [session?.status, heartbeat]);
+
+  const handleExpire = useCallback(async () => {
+    // Auto-submit on timer expiry
+    await submitExam();
+    router.push(`/exam/${sessionId}/result`);
+  }, [submitExam, sessionId, router]);
 
   async function handleSubmit() {
-    if (!confirm("Sınavı tamamlamak istediğinize emin misiniz?")) return;
-    setSubmitting(true);
-    try {
-      await api.post(`/sessions/${sessionId}/submit`);
-      router.push(`/exam/${sessionId}/result`);
-    } catch {
-      setSubmitting(false);
-    }
+    if (!confirm("Sinavi tamamlamak istediginize emin misiniz?")) return;
+    await submitExam();
+    router.push(`/exam/${sessionId}/result`);
   }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Sınav yükleniyor...
+        Sinav yukleniyor...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => initialize(sessionId)}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          >
+            Tekrar Dene
+          </button>
+        </div>
       </div>
     );
   }
@@ -94,141 +95,100 @@ export default function ExamSessionPage() {
   if (!session || questions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Sınav bulunamadı.
+        Sinav bulunamadi.
       </div>
     );
   }
 
   const question = questions[currentIndex];
-  const currentAnswer = answers[question.id];
+  const currentAnswer = answers[question.id] as
+    | Record<string, unknown>
+    | undefined;
+  const answeredCount = Object.keys(answers).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <span className="text-sm text-gray-600">
-            Soru {currentIndex + 1} / {questions.length}
-          </span>
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-          >
-            {submitting ? "Gönderiliyor..." : "Sınavı Bitir"}
-          </button>
+      {/* Integrity Guard (invisible) */}
+      {flags && (
+        <IntegrityGuard
+          tabSwitchDetection={flags.tab_switch_detection}
+          copyPasteBlock={flags.copy_paste_block}
+          fullscreenRequired={flags.fullscreen_required}
+        />
+      )}
+
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-600">
+              Soru {currentIndex + 1} / {questions.length}
+            </span>
+            <span className="text-xs text-gray-400">
+              {answeredCount} / {questions.length} cevaplandi
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Timer expiresAt={session.expires_at} onExpire={handleExpire} />
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {submitting ? "Gonderiliyor..." : "Sinavi Bitir"}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="rounded-lg bg-white border border-gray-200 p-6">
-          <p className="text-lg text-gray-900 whitespace-pre-wrap">
-            {question.stem}
-          </p>
-
-          <div className="mt-6">
-            {question.question_type === "mcq" && question.options && (
-              <div className="space-y-2">
-                {question.options.map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() =>
-                      saveAnswer(question.id, { key: opt.key })
-                    }
-                    className={`w-full text-left rounded-md border px-4 py-3 text-sm transition-colors ${
-                      (currentAnswer as { key?: string })?.key === opt.key
-                        ? "border-blue-500 bg-blue-50 text-blue-900"
-                        : "border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="font-medium">{opt.key})</span> {opt.text}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {question.question_type === "true_false" && (
-              <div className="flex gap-4">
-                {[true, false].map((val) => (
-                  <button
-                    key={String(val)}
-                    onClick={() =>
-                      saveAnswer(question.id, { value: val })
-                    }
-                    className={`flex-1 rounded-md border px-4 py-3 text-sm font-medium transition-colors ${
-                      (currentAnswer as { value?: boolean })?.value === val
-                        ? "border-blue-500 bg-blue-50 text-blue-900"
-                        : "border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
-                    {val ? "Doğru" : "Yanlış"}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {question.question_type === "numeric" && (
-              <input
-                type="number"
-                step="any"
-                placeholder="Cevabınızı girin"
-                defaultValue={
-                  (currentAnswer as { value?: number })?.value ?? ""
-                }
-                onBlur={(e) =>
-                  saveAnswer(question.id, {
-                    value: parseFloat(e.target.value),
-                  })
-                }
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            )}
-
-            {(question.question_type === "short_answer" ||
-              question.question_type === "long_form") && (
-              <textarea
-                rows={question.question_type === "long_form" ? 8 : 3}
-                placeholder="Cevabınızı yazın"
-                defaultValue={
-                  (currentAnswer as { text?: string })?.text ?? ""
-                }
-                onBlur={(e) =>
-                  saveAnswer(question.id, { text: e.target.value })
-                }
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            )}
-          </div>
-        </div>
+      {/* Question Area */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <QuestionRenderer
+          question={question}
+          answer={currentAnswer}
+          onAnswer={(answer) => saveAnswer(question.id, answer)}
+          questionNumber={currentIndex + 1}
+          copyPasteBlocked={flags?.copy_paste_block ?? false}
+        />
 
         {/* Navigation */}
         <div className="mt-6 flex items-center justify-between">
           <button
-            onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+            onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
             disabled={currentIndex === 0}
             className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            Önceki
+            Onceki
           </button>
-          <div className="flex gap-1">
-            {questions.map((q, i) => (
-              <button
-                key={q.id}
-                onClick={() => setCurrentIndex(i)}
-                className={`h-8 w-8 rounded text-xs font-medium ${
-                  i === currentIndex
-                    ? "bg-blue-600 text-white"
-                    : answers[q.id]
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+
+          {/* Question Grid */}
+          <div className="flex flex-wrap gap-1 justify-center max-w-lg">
+            {questions.map((q, i) => {
+              const isAnswered = !!answers[q.id];
+              const isCurrent = i === currentIndex;
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-8 w-8 rounded text-xs font-medium transition-colors ${
+                    isCurrent
+                      ? "bg-blue-600 text-white"
+                      : isAnswered
+                        ? "bg-green-100 text-green-800 hover:bg-green-200"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                  title={`Soru ${i + 1}${isAnswered ? " (cevaplandi)" : ""}`}
+                >
+                  {i + 1}
+                </button>
+              );
+            })}
           </div>
+
           <button
             onClick={() =>
-              setCurrentIndex((i) => Math.min(questions.length - 1, i + 1))
+              setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))
             }
             disabled={currentIndex === questions.length - 1}
             className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"

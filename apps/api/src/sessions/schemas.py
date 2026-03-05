@@ -80,3 +80,33 @@ class SessionResultOut(BaseModel):
     session: SessionOut
     responses: list[ResponseOut]
     grades: list[GradeOut]
+
+
+class IntegrityEvent(BaseModel):
+    event_type: str = Field(
+        ..., description="tab_switch, copy, paste, fullscreen_exit, focus_loss"
+    )
+    details: dict[str, Any] | None = None
+
+
+class IntegrityBatch(BaseModel):
+    events: list[IntegrityEvent] = Field(..., min_length=1, max_length=100)
+
+
+class HeartbeatOut(BaseModel):
+    status: str
+    server_time: datetime
+    expires_at: datetime | None
+    remaining_seconds: int | None
+
+
+class FeatureFlagsOut(BaseModel):
+    proctoring_enabled: bool
+    tab_switch_detection: bool
+    copy_paste_block: bool
+    fullscreen_required: bool
+
+
+class ResumeOut(BaseModel):
+    session: SessionOut
+    responses: list[ResponseOut]

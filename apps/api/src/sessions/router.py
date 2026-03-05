@@ -4,12 +4,17 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependencies import get_current_user, require_student
+from src.core.config import settings
 from src.core.database import get_db
 from src.sessions.schemas import (
     BatchResponseSubmit,
+    FeatureFlagsOut,
     GradeOut,
+    HeartbeatOut,
+    IntegrityBatch,
     ResponseOut,
     ResponseSubmit,
+    ResumeOut,
     SessionCreate,
     SessionListResponse,
     SessionOut,
@@ -121,6 +126,69 @@ async def submit_session(
     service = SessionService(db)
     session = await service.submit_session(session_id, user.id)
     return SessionOut.model_validate(session)
+
+
+@router.get("/{session_id}/resume", response_model=ResumeOut)
+async def resume_session(
+    session_id: uuid.UUID,
+    user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> ResumeOut:
+    """Resume an in-progress session, returning session state + existing answers."""
+    service = SessionService(db)
+    session, responses = await service.resume_session(session_id, user.id)
+    return ResumeOut(
+        session=SessionOut.model_validate(session),
+        responses=[ResponseOut.model_validate(r) for r in responses],
+    )
+
+
+@router.post("/{session_id}/heartbeat", response_model=HeartbeatOut)
+async def heartbeat(
+    session_id: uuid.UUID,
+    user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> HeartbeatOut:
+    """Heartbeat to keep session alive and check expiry. Auto-submits if expired."""
+    from datetime import UTC, datetime
+
+    service = SessionService(db)
+    session = await service.heartbeat(session_id, user.id)
+    now = datetime.now(UTC)
+    remaining: int | None = None
+    if session.expires_at is not None:
+        remaining = max(0, int((session.expires_at - now).total_seconds()))
+    return HeartbeatOut(
+        status=session.status,
+        server_time=now,
+        expires_at=session.expires_at,
+        remaining_seconds=remaining,
+    )
+
+
+@router.post("/{session_id}/integrity", status_code=204)
+async def log_integrity_events(
+    session_id: uuid.UUID,
+    body: IntegrityBatch,
+    user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Log integrity/proctoring events for the session."""
+    service = SessionService(db)
+    await service.log_integrity_events(session_id, user.id, body.events)
+
+
+@router.get("/feature-flags", response_model=FeatureFlagsOut)
+async def get_feature_flags(
+    _user: User = Depends(get_current_user),
+) -> FeatureFlagsOut:
+    """Get exam delivery feature flags."""
+    return FeatureFlagsOut(
+        proctoring_enabled=settings.feature_proctoring_enabled,
+        tab_switch_detection=settings.feature_tab_switch_detection,
+        copy_paste_block=settings.feature_copy_paste_block,
+        fullscreen_required=settings.feature_fullscreen_required,
+    )
 
 
 @router.get("/{session_id}/result", response_model=SessionResultOut)
