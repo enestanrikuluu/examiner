@@ -48,14 +48,12 @@ export default function DashboardLayout({
                 >
                   Ana Sayfa
                 </Link>
-                {user && (user.role === "instructor" || user.role === "admin") && (
-                  <Link
-                    href="/exams"
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    Sınavlar
-                  </Link>
-                )}
+                <Link
+                  href="/exams"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Sınavlar
+                </Link>
                 {user?.role === "admin" && (
                   <Link
                     href="/admin/users"

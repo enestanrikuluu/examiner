@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -39,20 +39,22 @@ def _make_user(
 async def test_register_creates_user_and_returns_tokens(
     auth_service: AuthService,
 ) -> None:
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=None):
-        with patch.object(
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=None),
+        patch.object(
             auth_service.user_repo,
             "create",
             side_effect=lambda u: setattr(u, "id", uuid.uuid4()) or u,
-        ):
-            _user, tokens = await auth_service.register(
-                email="new@example.com",
-                password="password123",
-                full_name="New User",
-            )
-            assert tokens.access_token
-            assert tokens.refresh_token
-            assert tokens.token_type == "bearer"
+        ),
+    ):
+        _user, tokens = await auth_service.register(
+            email="new@example.com",
+            password="password123",
+            full_name="New User",
+        )
+        assert tokens.access_token
+        assert tokens.refresh_token
+        assert tokens.token_type == "bearer"
 
 
 @pytest.mark.asyncio
@@ -60,22 +62,26 @@ async def test_register_raises_conflict_for_existing_email(
     auth_service: AuthService,
 ) -> None:
     existing_user = _make_user()
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=existing_user):
-        with pytest.raises(ConflictError):
-            await auth_service.register(
-                email="test@example.com",
-                password="password123",
-                full_name="Test",
-            )
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=existing_user),
+        pytest.raises(ConflictError),
+    ):
+        await auth_service.register(
+            email="test@example.com",
+            password="password123",
+            full_name="Test",
+        )
 
 
 @pytest.mark.asyncio
 async def test_login_with_invalid_email_raises(
     auth_service: AuthService,
 ) -> None:
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=None):
-        with pytest.raises(UnauthorizedError):
-            await auth_service.login("nonexistent@example.com", "password")
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=None),
+        pytest.raises(UnauthorizedError),
+    ):
+        await auth_service.login("nonexistent@example.com", "password")
 
 
 @pytest.mark.asyncio
@@ -83,10 +89,12 @@ async def test_login_with_wrong_password_raises(
     auth_service: AuthService,
 ) -> None:
     user = _make_user()
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=user):
-        with patch("src.auth.service.verify_password", return_value=False):
-            with pytest.raises(UnauthorizedError):
-                await auth_service.login("test@example.com", "wrongpassword")
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=user),
+        patch("src.auth.service.verify_password", return_value=False),
+        pytest.raises(UnauthorizedError),
+    ):
+        await auth_service.login("test@example.com", "wrongpassword")
 
 
 @pytest.mark.asyncio
@@ -94,10 +102,12 @@ async def test_login_with_inactive_user_raises(
     auth_service: AuthService,
 ) -> None:
     user = _make_user(is_active=False)
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=user):
-        with patch("src.auth.service.verify_password", return_value=True):
-            with pytest.raises(UnauthorizedError):
-                await auth_service.login("test@example.com", "password")
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=user),
+        patch("src.auth.service.verify_password", return_value=True),
+        pytest.raises(UnauthorizedError),
+    ):
+        await auth_service.login("test@example.com", "password")
 
 
 @pytest.mark.asyncio
@@ -105,11 +115,13 @@ async def test_login_success_returns_tokens(
     auth_service: AuthService,
 ) -> None:
     user = _make_user()
-    with patch.object(auth_service.user_repo, "get_by_email", return_value=user):
-        with patch("src.auth.service.verify_password", return_value=True):
-            _user, tokens = await auth_service.login("test@example.com", "password")
-            assert tokens.access_token
-            assert tokens.refresh_token
+    with (
+        patch.object(auth_service.user_repo, "get_by_email", return_value=user),
+        patch("src.auth.service.verify_password", return_value=True),
+    ):
+        _user, tokens = await auth_service.login("test@example.com", "password")
+        assert tokens.access_token
+        assert tokens.refresh_token
 
 
 @pytest.mark.asyncio

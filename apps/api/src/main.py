@@ -34,15 +34,25 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(RequestIdMiddleware)
 
+    from src.ai.router import document_router
+    from src.ai.router import router as ai_router
     from src.auth.router import router as auth_router
+    from src.exams.router import router as exams_router
     from src.health import router as health_router
     from src.orgs.router import router as orgs_router
+    from src.questions.router import router as questions_router
+    from src.sessions.router import router as sessions_router
     from src.users.router import router as users_router
 
     app.include_router(health_router, prefix=settings.api_prefix)
     app.include_router(auth_router, prefix=settings.api_prefix)
     app.include_router(users_router, prefix=settings.api_prefix)
     app.include_router(orgs_router, prefix=settings.api_prefix)
+    app.include_router(exams_router, prefix=settings.api_prefix)
+    app.include_router(questions_router, prefix=settings.api_prefix)
+    app.include_router(sessions_router, prefix=settings.api_prefix)
+    app.include_router(ai_router, prefix=settings.api_prefix)
+    app.include_router(document_router, prefix=settings.api_prefix)
 
     return app
 

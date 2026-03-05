@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 export default function DashboardPage() {
@@ -17,28 +18,37 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900">Sınavlarım</h3>
+        <Link
+          href="/exams"
+          className="bg-white rounded-lg border border-gray-200 p-6 hover:border-blue-300 transition-colors"
+        >
+          <h3 className="font-semibold text-gray-900">Sınavlar</h3>
           <p className="mt-1 text-sm text-gray-600">
-            Aktif ve tamamlanmış sınavlarınızı görüntüleyin.
+            Sınav şablonlarını görüntüleyin ve yönetin.
           </p>
-        </div>
+        </Link>
 
         {user && (user.role === "instructor" || user.role === "admin") && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <Link
+            href="/exams/new"
+            className="bg-white rounded-lg border border-gray-200 p-6 hover:border-blue-300 transition-colors"
+          >
             <h3 className="font-semibold text-gray-900">Sınav Oluştur</h3>
             <p className="mt-1 text-sm text-gray-600">
               AI destekli soru oluşturma ile yeni sınav hazırlayın.
             </p>
-          </div>
+          </Link>
         )}
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <Link
+          href="/exams"
+          className="bg-white rounded-lg border border-gray-200 p-6 hover:border-blue-300 transition-colors"
+        >
           <h3 className="font-semibold text-gray-900">Sonuçlar</h3>
           <p className="mt-1 text-sm text-gray-600">
             Sınav sonuçlarınızı ve performans analizlerinizi inceleyin.
           </p>
-        </div>
+        </Link>
       </div>
     </div>
   );
