@@ -21,7 +21,12 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         v = self.cors_origins.strip()
         if v.startswith("["):
-            return json.loads(v)  # type: ignore[no-any-return]
+            try:
+                return json.loads(v)  # type: ignore[no-any-return]
+            except json.JSONDecodeError:
+                # Handle unquoted URLs like [http://1.2.3.4]
+                inner = v.strip("[]")
+                return [o.strip() for o in inner.split(",") if o.strip()]
         return [origin.strip() for origin in v.split(",") if origin.strip()]
 
     # Database
