@@ -17,4 +17,8 @@ def ensure_bucket_exists() -> None:
     try:
         s3_client.head_bucket(Bucket=settings.minio_bucket)
     except Exception:
-        s3_client.create_bucket(Bucket=settings.minio_bucket)
+        try:
+            s3_client.create_bucket(Bucket=settings.minio_bucket)
+        except Exception:
+            # Bucket may already exist (race condition with multiple workers)
+            pass
