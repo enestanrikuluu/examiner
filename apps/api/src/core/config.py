@@ -1,6 +1,5 @@
 import json
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,17 +15,14 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     debug: bool = False
     api_prefix: str = "/api/v1"
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: str = '["http://localhost:3000"]'
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, v: object) -> object:
-        if isinstance(v, str):
-            v = v.strip()
-            if v.startswith("["):
-                return json.loads(v)
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+    @property
+    def cors_origins_list(self) -> list[str]:
+        v = self.cors_origins.strip()
+        if v.startswith("["):
+            return json.loads(v)  # type: ignore[no-any-return]
+        return [origin.strip() for origin in v.split(",") if origin.strip()]
 
     # Database
     database_url: str = "postgresql+asyncpg://examiner:examiner@localhost:5432/examiner"
