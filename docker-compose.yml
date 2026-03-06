@@ -69,7 +69,7 @@ services:
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost"]}
+      CORS_ORIGINS: '${CORS_ORIGINS:-["http://localhost"]}'
       DEBUG: "false"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
