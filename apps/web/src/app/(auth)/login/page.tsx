@@ -17,7 +17,7 @@ export default function LoginPage() {
     setError("");
     try {
       await login(email, password);
-      router.push("/");
+      router.push("/exams");
     } catch {
       setError("Geçersiz e-posta veya şifre");
     }

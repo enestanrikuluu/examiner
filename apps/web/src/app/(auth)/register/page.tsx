@@ -22,7 +22,7 @@ export default function RegisterPage() {
     }
     try {
       await register(email, password, fullName);
-      router.push("/");
+      router.push("/exams");
     } catch {
       setError("Kayıt oluşturulamadı. Bu e-posta zaten kullanılıyor olabilir.");
     }
