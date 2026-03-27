@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import time
 import uuid
+from typing import Any
 
 from fastapi import HTTPException, Request
 import redis.asyncio as aioredis
@@ -7,10 +10,10 @@ import redis.asyncio as aioredis
 from src.core.config import settings
 
 
-_redis_pool: aioredis.Redis[bytes] | None = None
+_redis_pool: Any = None
 
 
-async def get_redis_pool() -> aioredis.Redis[bytes]:
+async def get_redis_pool() -> Any:
     global _redis_pool
     if _redis_pool is None:
         _redis_pool = aioredis.from_url(settings.redis_url)
