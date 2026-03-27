@@ -80,14 +80,17 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
             y1={yScale(tick)}
             x2={width - padding.right}
             y2={yScale(tick)}
-            stroke="#e5e7eb"
+            stroke="#D4C5B0"
             strokeWidth={1}
           />
           <text
             x={padding.left - 8}
             y={yScale(tick) + 4}
             textAnchor="end"
-            className="text-[10px] fill-gray-400"
+            style={{
+              fontSize: "10px",
+              fill: "#8B7A6B",
+            }}
           >
             {tick.toFixed(1)}
           </text>
@@ -101,7 +104,10 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
           x={xScale(h.step)}
           y={height - 5}
           textAnchor="middle"
-          className="text-[10px] fill-gray-400"
+          style={{
+            fontSize: "10px",
+            fill: "#8B7A6B",
+          }}
         >
           {h.step}
         </text>
@@ -110,12 +116,12 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
       {/* SE band */}
       <polygon
         points={`${upperBand} ${lowerBand}`}
-        fill="rgba(59, 130, 246, 0.1)"
+        fill="rgba(139, 105, 20, 0.1)"
         stroke="none"
       />
 
       {/* Theta line */}
-      <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth={2} />
+      <path d={linePath} fill="none" stroke="#8B6914" strokeWidth={2} />
 
       {/* Data points */}
       {history.map((h) => (
@@ -124,7 +130,7 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
           cx={xScale(h.step)}
           cy={yScale(h.theta)}
           r={4}
-          fill={h.is_correct ? "#22c55e" : "#ef4444"}
+          fill={h.is_correct ? "#4A6741" : "#8B2E3B"}
           stroke="white"
           strokeWidth={1.5}
         />
@@ -137,7 +143,7 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
           y1={yScale(0)}
           x2={width - padding.right}
           y2={yScale(0)}
-          stroke="#9ca3af"
+          stroke="#8B7A6B"
           strokeWidth={1}
           strokeDasharray="4 4"
         />
@@ -149,7 +155,11 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
         y={height / 2}
         textAnchor="middle"
         transform={`rotate(-90, ${padding.left - 35}, ${height / 2})`}
-        className="text-[11px] fill-gray-500 font-medium"
+        style={{
+          fontSize: "11px",
+          fill: "#8B7A6B",
+          fontWeight: "500",
+        }}
       >
         {"\u03B8"}
       </text>
@@ -157,7 +167,11 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
         x={width / 2}
         y={height - 2}
         textAnchor="middle"
-        className="text-[11px] fill-gray-500 font-medium"
+        style={{
+          fontSize: "11px",
+          fill: "#8B7A6B",
+          fontWeight: "500",
+        }}
       >
         Soru
       </text>
@@ -167,7 +181,11 @@ export default function ThetaChart({ history, height = 200 }: ThetaChartProps) {
         <text
           x={xScale(history[history.length - 1].step) + 8}
           y={yScale(history[history.length - 1].theta) + 4}
-          className="text-[10px] fill-blue-600 font-medium"
+          style={{
+            fontSize: "10px",
+            fill: "#8B6914",
+            fontWeight: "500",
+          }}
         >
           SE: {ses[ses.length - 1].toFixed(3)}
         </text>

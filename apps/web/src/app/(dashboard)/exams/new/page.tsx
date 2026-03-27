@@ -43,13 +43,28 @@ export default function NewExamPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900">Yeni Sınav Oluştur</h1>
-      <p className="mt-1 text-sm text-gray-600">
+      <h1
+        className="text-2xl font-bold"
+        style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+      >
+        Yeni Sınav Oluştur
+      </h1>
+      <p
+        className="mt-1 text-sm"
+        style={{ color: "var(--text-secondary)" }}
+      >
         Sınav şablonunu oluşturun, sonra sorular ekleyin.
       </p>
 
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          className="mt-4 rounded-md p-3 text-sm"
+          style={{
+            backgroundColor: "var(--danger-light)",
+            color: "var(--danger)",
+            borderLeft: "3px solid var(--danger)",
+          }}
+        >
           {error}
         </div>
       )}
@@ -58,7 +73,8 @@ export default function NewExamPage() {
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium"
+            style={{ color: "var(--text-primary)" }}
           >
             Sınav Başlığı *
           </label>
@@ -68,14 +84,35 @@ export default function NewExamPage() {
             type="text"
             required
             maxLength={500}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            style={{
+              marginTop: "0.25rem",
+              display: "block",
+              width: "100%",
+              borderRadius: "0.375rem",
+              backgroundColor: "var(--background)",
+              borderColor: "var(--input-border)",
+              borderWidth: "1px",
+              padding: "0.5rem 0.75rem",
+              fontSize: "0.875rem",
+              color: "var(--text-primary)",
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-focus)";
+              e.currentTarget.style.outline = "none";
+              e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-border)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           />
         </div>
 
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium"
+            style={{ color: "var(--text-primary)" }}
           >
             Açıklama
           </label>
@@ -83,7 +120,28 @@ export default function NewExamPage() {
             id="description"
             name="description"
             rows={3}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            style={{
+              marginTop: "0.25rem",
+              display: "block",
+              width: "100%",
+              borderRadius: "0.375rem",
+              backgroundColor: "var(--background)",
+              borderColor: "var(--input-border)",
+              borderWidth: "1px",
+              padding: "0.5rem 0.75rem",
+              fontSize: "0.875rem",
+              color: "var(--text-primary)",
+              fontFamily: "inherit",
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-focus)";
+              e.currentTarget.style.outline = "none";
+              e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-border)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           />
         </div>
 
@@ -91,7 +149,8 @@ export default function NewExamPage() {
           <div>
             <label
               htmlFor="locale"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
             >
               Dil
             </label>
@@ -99,7 +158,27 @@ export default function NewExamPage() {
               id="locale"
               name="locale"
               defaultValue="tr-TR"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              style={{
+                marginTop: "0.25rem",
+                display: "block",
+                width: "100%",
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--background)",
+                borderColor: "var(--input-border)",
+                borderWidth: "1px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.875rem",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-focus)";
+                e.currentTarget.style.outline = "none";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
               <option value="tr-TR">Türkçe</option>
               <option value="en-US">English</option>
@@ -109,7 +188,8 @@ export default function NewExamPage() {
           <div>
             <label
               htmlFor="exam_mode"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
             >
               Sınav Modu
             </label>
@@ -117,7 +197,27 @@ export default function NewExamPage() {
               id="exam_mode"
               name="exam_mode"
               defaultValue="mock"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              style={{
+                marginTop: "0.25rem",
+                display: "block",
+                width: "100%",
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--background)",
+                borderColor: "var(--input-border)",
+                borderWidth: "1px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.875rem",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-focus)";
+                e.currentTarget.style.outline = "none";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
               <option value="practice">Alıştırma</option>
               <option value="mock">Deneme</option>
@@ -130,7 +230,8 @@ export default function NewExamPage() {
           <div>
             <label
               htmlFor="time_limit_minutes"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
             >
               Süre (dakika)
             </label>
@@ -140,14 +241,35 @@ export default function NewExamPage() {
               type="number"
               min={1}
               max={600}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              style={{
+                marginTop: "0.25rem",
+                display: "block",
+                width: "100%",
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--background)",
+                borderColor: "var(--input-border)",
+                borderWidth: "1px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.875rem",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-focus)";
+                e.currentTarget.style.outline = "none";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
 
           <div>
             <label
               htmlFor="pass_score"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
             >
               Geçme Notu (%)
             </label>
@@ -157,25 +279,59 @@ export default function NewExamPage() {
               type="number"
               min={0}
               max={100}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              style={{
+                marginTop: "0.25rem",
+                display: "block",
+                width: "100%",
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--background)",
+                borderColor: "var(--input-border)",
+                borderWidth: "1px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.875rem",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-focus)";
+                e.currentTarget.style.outline = "none";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
         </div>
 
         <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label
+            className="flex items-center gap-2 text-sm"
+            style={{ color: "var(--text-primary)" }}
+          >
             <input
               type="checkbox"
               name="shuffle_questions"
-              className="rounded border-gray-300"
+              style={{
+                borderRadius: "0.25rem",
+                borderColor: "var(--input-border)",
+                accentColor: "var(--accent)",
+              }}
             />
             Soruları karıştır
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label
+            className="flex items-center gap-2 text-sm"
+            style={{ color: "var(--text-primary)" }}
+          >
             <input
               type="checkbox"
               name="shuffle_options"
-              className="rounded border-gray-300"
+              style={{
+                borderRadius: "0.25rem",
+                borderColor: "var(--input-border)",
+                accentColor: "var(--accent)",
+              }}
             />
             Seçenekleri karıştır
           </label>
@@ -185,14 +341,47 @@ export default function NewExamPage() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            style={{
+              borderRadius: "0.375rem",
+              backgroundColor: loading ? "var(--accent)" : "var(--accent)",
+              color: "white",
+              padding: "0.5rem 1rem",
+              fontSize: "0.875rem",
+              fontWeight: "500",
+              border: "none",
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.5 : 1,
+              transition: "background-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) e.currentTarget.style.backgroundColor = "var(--accent)";
+            }}
           >
             {loading ? "Oluşturuluyor..." : "Oluştur"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            style={{
+              borderRadius: "0.375rem",
+              backgroundColor: "transparent",
+              color: "var(--text-primary)",
+              padding: "0.5rem 1rem",
+              fontSize: "0.875rem",
+              fontWeight: "500",
+              border: "1px solid var(--border)",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--card-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
           >
             İptal
           </button>

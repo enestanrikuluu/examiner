@@ -11,9 +11,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isAuthenticated, fetchUser, logout } = useAuthStore();
+  const { user, isAuthenticated, isHydrated, fetchUser, logout, hydrate } = useAuthStore();
 
   useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
     if (!isAuthenticated) {
       router.push("/login");
       return;
@@ -21,9 +26,9 @@ export default function DashboardLayout({
     if (!user) {
       fetchUser();
     }
-  }, [isAuthenticated, user, fetchUser, router]);
+  }, [isHydrated, isAuthenticated, user, fetchUser, router]);
 
-  if (!isAuthenticated) {
+  if (!isHydrated || !isAuthenticated) {
     return null;
   }
 
@@ -33,31 +38,44 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200">
+    <div className="min-h-screen" style={{ background: "var(--background)" }}>
+      <nav style={{ background: "var(--nav)", borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-14">
-            <div className="flex items-center gap-6">
-              <Link href="/" className="text-lg font-bold text-gray-900">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center gap-8">
+              <Link
+                href="/"
+                className="text-xl font-bold tracking-tight"
+                style={{ fontFamily: "var(--font-playfair), Georgia, serif", color: "var(--text-primary)" }}
+              >
                 AI Examiner
               </Link>
-              <div className="hidden sm:flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-1">
                 <Link
                   href="/"
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--card-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
                 >
                   Ana Sayfa
                 </Link>
                 <Link
                   href="/exams"
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--card-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
                 >
                   Sınavlar
                 </Link>
                 {user?.role === "admin" && (
                   <Link
                     href="/admin/users"
-                    className="text-sm text-gray-600 hover:text-gray-900"
+                    className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                    style={{ color: "var(--text-secondary)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "var(--card-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
                   >
                     Yönetim
                   </Link>
@@ -66,11 +84,17 @@ export default function DashboardLayout({
             </div>
             <div className="flex items-center gap-4">
               {user && (
-                <span className="text-sm text-gray-600">{user.full_name}</span>
+                <span className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  {user.full_name}
+                </span>
               )}
+              <div className="w-px h-5" style={{ background: "var(--border)" }} />
               <button
                 onClick={handleLogout}
-                className="text-sm text-red-600 hover:text-red-800"
+                className="text-sm font-medium transition-colors"
+                style={{ color: "var(--danger)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.7"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
               >
                 Çıkış
               </button>

@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF6F0;
+  --foreground: #2C1810;
+  --card: #FFFAF5;
+  --card-hover: #F5EDE0;
+  --nav: #F0E8DC;
+  --border: #D4C5B0;
+  --border-light: #E8DFD0;
+  --text-primary: #2C1810;
+  --text-secondary: #5C4A3A;
+  --text-muted: #8B7A6B;
+  --accent: #8B6914;
+  --accent-hover: #6B4F0E;
+  --accent-light: #F5ECD8;
+  --success: #4A6741;
+  --success-light: #E8F0E6;
+  --warning: #996B2D;
+  --warning-light: #FDF3E4;
+  --danger: #8B2E3B;
+  --danger-light: #F9E8EA;
+  --special: #6B5088;
+  --special-light: #F0EBF5;
+  --link: #7B5832;
+  --input-border: #C4B5A0;
+  --input-focus: #8B6914;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-lora);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-playfair);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+::selection {
+  background: #D4C5B0;
+  color: #2C1810;
+}
+
+input, select, textarea {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

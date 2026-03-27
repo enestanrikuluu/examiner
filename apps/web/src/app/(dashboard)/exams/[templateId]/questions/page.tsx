@@ -99,23 +99,51 @@ export default function AddQuestionPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900">Soru Ekle</h1>
+      <h1
+        className="text-2xl font-bold"
+        style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+      >
+        Soru Ekle
+      </h1>
 
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          className="mt-4 rounded-md p-3 text-sm"
+          style={{
+            backgroundColor: "var(--danger-light)",
+            color: "var(--danger)",
+          }}
+        >
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Soru Tipi
           </label>
           <select
             value={questionType}
             onChange={(e) => setQuestionType(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--input-border)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--input-border)",
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-border)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
             {QUESTION_TYPES.map((qt) => (
               <option key={qt.value} value={qt.value}>
@@ -126,7 +154,10 @@ export default function AddQuestionPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Soru Metni *
           </label>
           <textarea
@@ -134,14 +165,31 @@ export default function AddQuestionPage() {
             onChange={(e) => setStem(e.target.value)}
             required
             rows={3}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--input-border)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--input-border)",
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-border)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           />
         </div>
 
         {/* MCQ options */}
         {questionType === "mcq" && (
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Seçenekler
             </label>
             {options.map((opt, i) => (
@@ -151,9 +199,13 @@ export default function AddQuestionPage() {
                   name="correct"
                   checked={correctKey === opt.key}
                   onChange={() => setCorrectKey(opt.key)}
-                  className="h-4 w-4 text-blue-600"
+                  className="h-4 w-4"
+                  style={{ accentColor: "var(--accent)" }}
                 />
-                <span className="text-sm font-medium text-gray-500 w-6">
+                <span
+                  className="text-sm font-medium w-6"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   {opt.key})
                 </span>
                 <input
@@ -165,7 +217,21 @@ export default function AddQuestionPage() {
                     setOptions(next);
                   }}
                   required
-                  className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="flex-1 rounded-md px-3 py-1.5 text-sm"
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--input-border)",
+                    color: "var(--text-primary)",
+                    border: "1px solid var(--input-border)",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "var(--accent)";
+                    e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--input-border)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                   placeholder={`Seçenek ${opt.key}`}
                 />
               </div>
@@ -177,7 +243,15 @@ export default function AddQuestionPage() {
                   const nextKey = String.fromCharCode(65 + options.length);
                   setOptions([...options, { key: nextKey, text: "" }]);
                 }}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className="text-sm"
+                style={{ color: "var(--accent)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color =
+                    "var(--accent-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+                }}
               >
                 + Seçenek Ekle
               </button>
@@ -188,7 +262,10 @@ export default function AddQuestionPage() {
         {/* True/False */}
         {questionType === "true_false" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Doğru Cevap
             </label>
             <div className="mt-2 flex gap-4">
@@ -197,18 +274,20 @@ export default function AddQuestionPage() {
                   type="radio"
                   checked={trueFalseAnswer === true}
                   onChange={() => setTrueFalseAnswer(true)}
-                  className="h-4 w-4 text-blue-600"
+                  className="h-4 w-4"
+                  style={{ accentColor: "var(--accent)" }}
                 />
-                Doğru
+                <span style={{ color: "var(--text-primary)" }}>Doğru</span>
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
                   checked={trueFalseAnswer === false}
                   onChange={() => setTrueFalseAnswer(false)}
-                  className="h-4 w-4 text-blue-600"
+                  className="h-4 w-4"
+                  style={{ accentColor: "var(--accent)" }}
                 />
-                Yanlış
+                <span style={{ color: "var(--text-primary)" }}>Yanlış</span>
               </label>
             </div>
           </div>
@@ -218,7 +297,10 @@ export default function AddQuestionPage() {
         {questionType === "numeric" && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Doğru Değer *
               </label>
               <input
@@ -227,11 +309,28 @@ export default function AddQuestionPage() {
                 value={numericValue}
                 onChange={(e) => setNumericValue(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--input-border)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--input-border)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Tolerans
               </label>
               <input
@@ -239,7 +338,21 @@ export default function AddQuestionPage() {
                 step="any"
                 value={numericTolerance}
                 onChange={(e) => setNumericTolerance(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--input-border)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--input-border)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
           </div>
@@ -248,7 +361,10 @@ export default function AddQuestionPage() {
         {/* Short answer */}
         {questionType === "short_answer" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Anahtar Kelimeler (virgülle ayırın) *
             </label>
             <input
@@ -257,14 +373,34 @@ export default function AddQuestionPage() {
               onChange={(e) => setKeywords(e.target.value)}
               required
               placeholder="Ankara, Türkiye"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--input-border)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--input-border)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
         )}
 
         {/* Long form - rubric note */}
         {questionType === "long_form" && (
-          <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+          <div
+            className="rounded-md p-3 text-sm"
+            style={{
+              backgroundColor: "var(--accent-light)",
+              color: "var(--accent)",
+            }}
+          >
             Uzun cevaplı sorular için varsayılan rubrik uygulanır. Rubrik
             düzenleme Phase 4&apos;te eklenecektir.
           </div>
@@ -272,25 +408,59 @@ export default function AddQuestionPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Konu
             </label>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--input-border)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--input-border)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Açıklama
             </label>
             <input
               type="text"
               value={explanation}
               onChange={(e) => setExplanation(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--input-border)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--input-border)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
         </div>
@@ -299,14 +469,42 @@ export default function AddQuestionPage() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-md px-4 py-2 text-sm font-medium text-white"
+            style={{
+              backgroundColor: "var(--accent)",
+              opacity: loading ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                (e.currentTarget as HTMLElement).style.backgroundColor =
+                  "var(--accent-hover)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.backgroundColor =
+                "var(--accent)";
+            }}
           >
             {loading ? "Ekleniyor..." : "Soru Ekle"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-md px-4 py-2 text-sm font-medium"
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.backgroundColor =
+                "var(--card-hover)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.backgroundColor =
+                "transparent";
+            }}
           >
             İptal
           </button>

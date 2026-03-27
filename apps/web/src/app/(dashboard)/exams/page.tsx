@@ -11,6 +11,7 @@ export default function ExamsPage() {
   const [templates, setTemplates] = useState<ExamTemplate[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [cardHoverId, setCardHoverId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -34,8 +35,8 @@ export default function ExamsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sınavlar</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}>Sınavlar</h1>
+          <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
             {total} sınav şablonu
           </p>
         </div>
@@ -43,13 +44,34 @@ export default function ExamsPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/exams/isg"
-              className="rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+              className="rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+              style={{
+                borderColor: "var(--input-border)",
+                color: "var(--link)",
+                backgroundColor: "transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--accent-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               ISG Sınavı
             </Link>
             <Link
               href="/exams/new"
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded-md px-4 py-2 text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "#FFFAF5",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--accent)";
+              }}
             >
               Yeni Sınav
             </Link>
@@ -58,9 +80,9 @@ export default function ExamsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
+        <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>Yükleniyor...</div>
       ) : templates.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>
           Henüz sınav şablonu yok.
         </div>
       ) : (
@@ -69,17 +91,23 @@ export default function ExamsPage() {
             <Link
               key={t.id}
               href={`/exams/${t.id}`}
-              className="block rounded-lg border border-gray-200 bg-white p-5 hover:border-blue-300 transition-colors"
+              className="block rounded-lg border p-5 transition-colors"
+              style={{
+                borderColor: cardHoverId === t.id ? "var(--accent)" : "var(--border-light)",
+                backgroundColor: cardHoverId === t.id ? "var(--card-hover)" : "var(--card)",
+              }}
+              onMouseEnter={() => setCardHoverId(t.id)}
+              onMouseLeave={() => setCardHoverId(null)}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{t.title}</h3>
+                  <h3 className="font-semibold" style={{ color: "var(--text-primary)" }}>{t.title}</h3>
                   {t.description && (
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                    <p className="mt-1 text-sm line-clamp-2" style={{ color: "var(--text-secondary)" }}>
                       {t.description}
                     </p>
                   )}
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                  <div className="mt-2 flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
                     <span>{t.locale}</span>
                     {t.time_limit_minutes && (
                       <span>{t.time_limit_minutes} dk</span>
@@ -91,11 +119,18 @@ export default function ExamsPage() {
                   </div>
                 </div>
                 <span
-                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                  className="inline-flex rounded-full px-2 py-1 text-xs font-medium"
+                  style={
                     t.is_published
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+                      ? {
+                          backgroundColor: "var(--success-light)",
+                          color: "var(--success)",
+                        }
+                      : {
+                          backgroundColor: "var(--warning-light)",
+                          color: "var(--warning)",
+                        }
+                  }
                 >
                   {t.is_published ? "Yayında" : "Taslak"}
                 </span>

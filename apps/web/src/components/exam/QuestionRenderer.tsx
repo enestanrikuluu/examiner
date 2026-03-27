@@ -30,13 +30,26 @@ export default function QuestionRenderer({
     : {};
 
   return (
-    <div className="rounded-lg bg-white border border-gray-200 p-6">
+    <div
+      className="rounded-lg border p-6"
+      style={{
+        backgroundColor: "var(--card)",
+        borderColor: "var(--border-light)",
+      }}
+    >
       <div className="flex items-start gap-3 mb-4">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex-shrink-0">
+        <span
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold flex-shrink-0"
+          style={{
+            backgroundColor: "var(--accent-light)",
+            color: "var(--accent)",
+          }}
+        >
           {questionNumber}
         </span>
         <p
-          className="text-gray-900 whitespace-pre-wrap leading-relaxed"
+          className="whitespace-pre-wrap leading-relaxed"
+          style={{ color: "var(--text-primary)" }}
           {...blockHandlers}
         >
           {question.stem}
@@ -108,11 +121,20 @@ function MCQInput({
         <button
           key={opt.key}
           onClick={() => onSelect(opt.key)}
-          className={`w-full text-left rounded-md border px-4 py-3 text-sm transition-colors ${
+          className="w-full text-left rounded-md border px-4 py-3 text-sm transition-colors"
+          style={
             selected === opt.key
-              ? "border-blue-500 bg-blue-50 text-blue-900"
-              : "border-gray-200 hover:bg-gray-50"
-          }`}
+              ? {
+                  borderColor: "var(--accent)",
+                  backgroundColor: "var(--accent-light)",
+                  color: "var(--accent)",
+                }
+              : {
+                  borderColor: "var(--border-light)",
+                  backgroundColor: "var(--card)",
+                  color: "var(--text-secondary)",
+                }
+          }
         >
           <span className="font-medium">{opt.key})</span> {opt.text}
         </button>
@@ -134,11 +156,20 @@ function TrueFalseInput({
         <button
           key={String(val)}
           onClick={() => onSelect(val)}
-          className={`flex-1 rounded-md border px-4 py-3 text-sm font-medium transition-colors ${
+          className="flex-1 rounded-md border px-4 py-3 text-sm font-medium transition-colors"
+          style={
             selected === val
-              ? "border-blue-500 bg-blue-50 text-blue-900"
-              : "border-gray-200 hover:bg-gray-50"
-          }`}
+              ? {
+                  borderColor: "var(--accent)",
+                  backgroundColor: "var(--accent-light)",
+                  color: "var(--accent)",
+                }
+              : {
+                  borderColor: "var(--border-light)",
+                  backgroundColor: "var(--card)",
+                  color: "var(--text-secondary)",
+                }
+          }
         >
           {val ? "Dogru" : "Yanlis"}
         </button>
@@ -170,7 +201,23 @@ function NumericInput({
         const v = parseFloat(e.target.value);
         if (!isNaN(v)) onValue(v);
       }}
-      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1"
+      style={{
+        borderColor: "var(--input-border)",
+        backgroundColor: "var(--card)",
+        color: "var(--text-primary)",
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.borderColor = "var(--input-focus)";
+        e.currentTarget.style.boxShadow =
+          "0 0 0 1px var(--input-focus)";
+      }}
+      onBlur={(e) => {
+        e.currentTarget.style.borderColor = "var(--input-border)";
+        e.currentTarget.style.boxShadow = "none";
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v)) onValue(v);
+      }}
       {...blockHandlers}
     />
   );
@@ -199,7 +246,17 @@ function TextInput({
       placeholder={placeholder}
       defaultValue={value}
       onBlur={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1"
+      style={{
+        borderColor: "var(--input-border)",
+        backgroundColor: "var(--card)",
+        color: "var(--text-primary)",
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.borderColor = "var(--input-focus)";
+        e.currentTarget.style.boxShadow =
+          "0 0 0 1px var(--input-focus)";
+      }}
       {...blockHandlers}
     />
   );

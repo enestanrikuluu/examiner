@@ -52,15 +52,31 @@ export default function Timer({
       ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
       : `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
+  const getTimerStyles = () => {
+    if (isCritical) {
+      return {
+        backgroundColor: "var(--danger-light)",
+        color: "var(--danger)",
+      };
+    }
+    if (isWarning) {
+      return {
+        backgroundColor: "var(--warning-light)",
+        color: "var(--warning)",
+      };
+    }
+    return {
+      backgroundColor: "var(--card-hover)",
+      color: "var(--text-secondary)",
+    };
+  };
+
   return (
     <div
       className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-sm font-mono font-medium ${
-        isCritical
-          ? "bg-red-100 text-red-700 animate-pulse"
-          : isWarning
-            ? "bg-amber-100 text-amber-700"
-            : "bg-gray-100 text-gray-700"
+        isCritical ? "animate-pulse" : ""
       }`}
+      style={getTimerStyles()}
     >
       <svg
         className="h-4 w-4"

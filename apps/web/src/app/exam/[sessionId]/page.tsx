@@ -70,7 +70,7 @@ export default function ExamSessionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center" style={{ color: "var(--text-secondary)" }}>
         Sinav yukleniyor...
       </div>
     );
@@ -78,12 +78,13 @@ export default function ExamSessionPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--background)" }}>
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="mb-4" style={{ color: "var(--danger)" }}>{error}</p>
           <button
             onClick={() => initialize(sessionId)}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            className="rounded-md px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            style={{ backgroundColor: "var(--accent)" }}
           >
             Tekrar Dene
           </button>
@@ -94,7 +95,7 @@ export default function ExamSessionPage() {
 
   if (!session || questions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center" style={{ color: "var(--text-secondary)", backgroundColor: "var(--background)" }}>
         Sinav bulunamadi.
       </div>
     );
@@ -107,7 +108,7 @@ export default function ExamSessionPage() {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
       {/* Integrity Guard (invisible) */}
       {flags && (
         <IntegrityGuard
@@ -118,13 +119,13 @@ export default function ExamSessionPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+      <div className="px-4 py-3 sticky top-0 z-10" style={{ backgroundColor: "var(--card)", borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
               Soru {currentIndex + 1} / {questions.length}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
               {answeredCount} / {questions.length} cevaplandi
             </span>
           </div>
@@ -134,7 +135,8 @@ export default function ExamSessionPage() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              className="rounded-md px-4 py-1.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: "var(--danger)" }}
             >
               {submitting ? "Gonderiliyor..." : "Sinavi Bitir"}
             </button>
@@ -157,7 +159,11 @@ export default function ExamSessionPage() {
           <button
             onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
             disabled={currentIndex === 0}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+            style={{
+              border: "1px solid var(--border)",
+              color: "var(--text-secondary)"
+            }}
           >
             Onceki
           </button>
@@ -171,13 +177,19 @@ export default function ExamSessionPage() {
                 <button
                   key={q.id}
                   onClick={() => setCurrentIndex(i)}
-                  className={`h-8 w-8 rounded text-xs font-medium transition-colors ${
-                    isCurrent
-                      ? "bg-blue-600 text-white"
+                  className="h-8 w-8 rounded text-xs font-medium transition-colors"
+                  style={{
+                    backgroundColor: isCurrent
+                      ? "var(--accent)"
                       : isAnswered
-                        ? "bg-green-100 text-green-800 hover:bg-green-200"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                        ? "var(--success-light)"
+                        : "var(--card-hover)",
+                    color: isCurrent
+                      ? "white"
+                      : isAnswered
+                        ? "var(--success)"
+                        : "var(--text-secondary)",
+                  }}
                   title={`Soru ${i + 1}${isAnswered ? " (cevaplandi)" : ""}`}
                 >
                   {i + 1}
@@ -191,7 +203,11 @@ export default function ExamSessionPage() {
               setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))
             }
             disabled={currentIndex === questions.length - 1}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+            style={{
+              border: "1px solid var(--border)",
+              color: "var(--text-secondary)"
+            }}
           >
             Sonraki
           </button>

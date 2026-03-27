@@ -146,7 +146,7 @@ export default function ISGWizardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-gray-500">
+      <div className="flex items-center justify-center py-12" style={{ color: "var(--text-secondary)" }}>
         Yükleniyor...
       </div>
     );
@@ -158,14 +158,23 @@ export default function ISGWizardPage() {
       <div>
         <Link
           href="/exams"
-          className="text-sm text-blue-600 hover:text-blue-800"
+          style={{ color: "var(--link)", textDecoration: "none", fontSize: "0.875rem" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.textDecoration = "underline";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.textDecoration = "none";
+          }}
         >
           &larr; Sınavlara Dön
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">
+        <h1
+          className="mt-2 text-2xl font-bold"
+          style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+        >
           ISG Sınav Oluşturma
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           OSHM müfredatına uygun ISG sınavı oluşturun
         </p>
       </div>
@@ -181,16 +190,38 @@ export default function ISGWizardPage() {
             return (
               <div key={s} className="flex items-center gap-2">
                 {i > 0 && (
-                  <div className={`h-px w-8 ${isPast ? "bg-blue-600" : "bg-gray-300"}`} />
+                  <div
+                    style={{
+                      height: "1px",
+                      width: "32px",
+                      backgroundColor: isPast ? "var(--accent)" : "var(--border)",
+                      transition: "background-color 0.2s",
+                    }}
+                  />
                 )}
                 <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                    isActive
-                      ? "bg-blue-600 text-white"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    borderRadius: "9999px",
+                    paddingLeft: "0.75rem",
+                    paddingRight: "0.75rem",
+                    paddingTop: "0.25rem",
+                    paddingBottom: "0.25rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "500",
+                    backgroundColor: isActive
+                      ? "var(--accent)"
                       : isPast
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-500"
-                  }`}
+                        ? "var(--accent-light)"
+                        : "var(--card)",
+                    color: isActive
+                      ? "white"
+                      : isPast
+                        ? "var(--accent)"
+                        : "var(--text-secondary)",
+                    transition: "all 0.2s",
+                  }}
                 >
                   {labels[i]}
                 </span>
@@ -201,7 +232,14 @@ export default function ISGWizardPage() {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+        <div
+          className="rounded-md border p-3 text-sm"
+          style={{
+            backgroundColor: "var(--danger-light)",
+            borderColor: "var(--danger)",
+            color: "var(--danger)",
+          }}
+        >
           {error}
         </div>
       )}
@@ -209,7 +247,10 @@ export default function ISGWizardPage() {
       {/* Step 1: Class Selection */}
       {step === "class" && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2
+            className="text-lg font-semibold"
+            style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+          >
             ISG Sınıf Seçimi
           </h2>
           <div className="grid gap-4">
@@ -222,23 +263,53 @@ export default function ISGWizardPage() {
                   setTopicOverrides({});
                   setStep("config");
                 }}
-                className="text-left rounded-lg border-2 border-gray-200 bg-white p-5 hover:border-blue-400 transition-colors"
+                style={{
+                  textAlign: "left",
+                  borderRadius: "0.5rem",
+                  border: "2px solid var(--card)",
+                  backgroundColor: "var(--card)",
+                  padding: "1.25rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--card)";
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">
+                    <h3
+                      className="text-lg font-bold"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {bp.exam_class} Sınıfı
                     </h3>
-                    <p className="mt-1 text-sm text-gray-600">
+                    <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
                       {bp.description}
                     </p>
-                    <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                    <div className="mt-3 flex items-center gap-4 text-xs" style={{ color: "var(--text-muted)" }}>
                       <span>{bp.total_questions} soru</span>
                       <span>{bp.time_limit_minutes} dakika</span>
                       <span>Geçme: %{bp.pass_score}</span>
                     </div>
                   </div>
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-lg font-bold">
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      height: "40px",
+                      width: "40px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "9999px",
+                      backgroundColor: "var(--accent-light)",
+                      color: "var(--accent)",
+                      fontSize: "1.125rem",
+                      fontWeight: "bold",
+                    }}
+                  >
                     {bp.exam_class}
                   </span>
                 </div>
@@ -252,12 +323,28 @@ export default function ISGWizardPage() {
       {step === "config" && selectedBlueprint && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+            >
               {selectedBlueprint.exam_class} Sınıfı Yapılandırma
             </h2>
             <button
               onClick={() => setStep("class")}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm"
+              style={{
+                color: "var(--text-secondary)",
+                backgroundColor: "transparent",
+                border: "none",
+                cursor: "pointer",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--text-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-secondary)";
+              }}
             >
               Sınıf Değiştir
             </button>
@@ -265,34 +352,71 @@ export default function ISGWizardPage() {
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
               Sınav Başlığı
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              style={{
+                marginTop: "0.25rem",
+                display: "block",
+                width: "100%",
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--background)",
+                borderColor: "var(--input-border)",
+                borderWidth: "1px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.875rem",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-focus)";
+                e.currentTarget.style.outline = "none";
+                e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
 
           {/* Shuffle options */}
           <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 text-sm">
+            <label
+              className="flex items-center gap-2 text-sm"
+              style={{ color: "var(--text-primary)" }}
+            >
               <input
                 type="checkbox"
                 checked={shuffleQuestions}
                 onChange={(e) => setShuffleQuestions(e.target.checked)}
-                className="rounded border-gray-300"
+                style={{
+                  borderRadius: "0.25rem",
+                  borderColor: "var(--input-border)",
+                  accentColor: "var(--accent)",
+                }}
               />
               Soruları Karıştır
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label
+              className="flex items-center gap-2 text-sm"
+              style={{ color: "var(--text-primary)" }}
+            >
               <input
                 type="checkbox"
                 checked={shuffleOptions}
                 onChange={(e) => setShuffleOptions(e.target.checked)}
-                className="rounded border-gray-300"
+                style={{
+                  borderRadius: "0.25rem",
+                  borderColor: "var(--input-border)",
+                  accentColor: "var(--accent)",
+                }}
               />
               Seçenekleri Karıştır
             </label>
@@ -300,9 +424,15 @@ export default function ISGWizardPage() {
 
           {/* Topic Distribution */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+            <h3
+              className="text-sm font-medium mb-3"
+              style={{ color: "var(--text-primary)" }}
+            >
               Konu Dağılımı
-              <span className="ml-2 text-gray-400 font-normal">
+              <span
+                className="ml-2 font-normal"
+                style={{ color: "var(--text-muted)" }}
+              >
                 (Toplam: {getTotalQuestions()} soru)
               </span>
             </h3>
@@ -313,13 +443,20 @@ export default function ISGWizardPage() {
                 return (
                   <div
                     key={tw.topic_id}
-                    className="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-3"
+                    className="flex items-center gap-3 rounded-md p-3"
+                    style={{
+                      border: "1px solid var(--border)",
+                      backgroundColor: "var(--card)",
+                    }}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p
+                        className="text-sm font-medium truncate"
+                        style={{ color: "var(--text-primary)" }}
+                      >
                         {tw.topic_name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                         Ağırlık: %{Math.round(tw.weight * 100)}
                       </p>
                     </div>
@@ -331,11 +468,27 @@ export default function ISGWizardPage() {
                             [tw.topic_id]: Math.max(0, current - 1),
                           }))
                         }
-                        className="h-7 w-7 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm"
+                        style={{
+                          height: "28px",
+                          width: "28px",
+                          borderRadius: "0.25rem",
+                          border: "1px solid var(--border)",
+                          backgroundColor: "transparent",
+                          color: "var(--text-secondary)",
+                          fontSize: "0.875rem",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "var(--card-hover)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                        }}
                       >
                         -
                       </button>
-                      <span className="w-8 text-center text-sm font-medium">
+                      <span className="w-8 text-center text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                         {current}
                       </span>
                       <button
@@ -345,7 +498,23 @@ export default function ISGWizardPage() {
                             [tw.topic_id]: current + 1,
                           }))
                         }
-                        className="h-7 w-7 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 text-sm"
+                        style={{
+                          height: "28px",
+                          width: "28px",
+                          borderRadius: "0.25rem",
+                          border: "1px solid var(--border)",
+                          backgroundColor: "transparent",
+                          color: "var(--text-secondary)",
+                          fontSize: "0.875rem",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "var(--card-hover)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                        }}
                       >
                         +
                       </button>
@@ -359,14 +528,46 @@ export default function ISGWizardPage() {
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={() => setStep("class")}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              style={{
+                borderRadius: "0.375rem",
+                border: "1px solid var(--border)",
+                backgroundColor: "transparent",
+                color: "var(--text-primary)",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--card-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               Geri
             </button>
             <button
               onClick={handleCreateExam}
               disabled={creating}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              style={{
+                borderRadius: "0.375rem",
+                backgroundColor: creating ? "var(--accent)" : "var(--accent)",
+                color: "white",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                fontWeight: "500",
+                border: "none",
+                cursor: creating ? "not-allowed" : "pointer",
+                opacity: creating ? 0.5 : 1,
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                if (!creating) e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+              }}
+              onMouseLeave={(e) => {
+                if (!creating) e.currentTarget.style.backgroundColor = "var(--accent)";
+              }}
             >
               {creating ? "Oluşturuluyor..." : "Sınavı Oluştur"}
             </button>
@@ -377,22 +578,34 @@ export default function ISGWizardPage() {
       {/* Step 3: Generate Questions */}
       {step === "generate" && examResult && (
         <div className="space-y-6">
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="text-sm font-medium text-green-800">
+          <div
+            className="rounded-lg border p-4"
+            style={{
+              border: "1px solid var(--success)",
+              backgroundColor: "var(--success-light)",
+            }}
+          >
+            <p className="text-sm font-medium" style={{ color: "var(--success)" }}>
               Sınav şablonu oluşturuldu!
             </p>
-            <p className="mt-1 text-xs text-green-700">
+            <p className="mt-1 text-xs" style={{ color: "var(--success)" }}>
               {examResult.title} - {examResult.total_questions} soru planlandı
             </p>
           </div>
 
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2
+            className="text-lg font-semibold"
+            style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+          >
             Soru Üretimi Ayarları
           </h2>
 
           {/* Question Types */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
               Soru Türleri
             </label>
             <div className="flex flex-wrap gap-2">
@@ -405,18 +618,41 @@ export default function ISGWizardPage() {
                 <button
                   key={qt.value}
                   onClick={() => toggleQuestionType(qt.value)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
-                    questionTypes.includes(qt.value)
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
-                  }`}
+                  style={{
+                    borderRadius: "9999px",
+                    padding: "0.375rem 0.75rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "500",
+                    border: "1px solid",
+                    backgroundColor: questionTypes.includes(qt.value)
+                      ? "var(--accent)"
+                      : "transparent",
+                    color: questionTypes.includes(qt.value)
+                      ? "white"
+                      : "var(--text-primary)",
+                    borderColor: questionTypes.includes(qt.value)
+                      ? "var(--accent)"
+                      : "var(--border)",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!questionTypes.includes(qt.value)) {
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!questionTypes.includes(qt.value)) {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }
+                  }}
                 >
                   {qt.label}
                 </button>
               ))}
             </div>
             {questionTypes.length === 0 && (
-              <p className="mt-1 text-xs text-red-500">
+              <p className="mt-1 text-xs" style={{ color: "var(--danger)" }}>
                 En az bir soru türü seçin
               </p>
             )}
@@ -424,7 +660,10 @@ export default function ISGWizardPage() {
 
           {/* Difficulty */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
               Zorluk Seviyesi: {difficulty}
             </label>
             <input
@@ -434,8 +673,11 @@ export default function ISGWizardPage() {
               value={difficulty}
               onChange={(e) => setDifficulty(Number(e.target.value))}
               className="w-full"
+              style={{
+                accentColor: "var(--accent)",
+              }}
             />
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs" style={{ color: "var(--text-muted)" }}>
               <span>Kolay</span>
               <span>Orta</span>
               <span>Zor</span>
@@ -443,12 +685,19 @@ export default function ISGWizardPage() {
           </div>
 
           {/* RAG toggle */}
-          <label className="flex items-center gap-2 text-sm">
+          <label
+            className="flex items-center gap-2 text-sm"
+            style={{ color: "var(--text-primary)" }}
+          >
             <input
               type="checkbox"
               checked={useRag}
               onChange={(e) => setUseRag(e.target.checked)}
-              className="rounded border-gray-300"
+              style={{
+                borderRadius: "0.25rem",
+                borderColor: "var(--input-border)",
+                accentColor: "var(--accent)",
+              }}
             />
             Yüklenen dokümanları kullan (RAG)
           </label>
@@ -456,13 +705,35 @@ export default function ISGWizardPage() {
           {/* Rubric selection for long_form */}
           {questionTypes.includes("long_form") && rubrics.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Varsayılan Rubrik (Uzun Cevap)
               </label>
               <select
                 value={selectedRubric}
                 onChange={(e) => setSelectedRubric(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "var(--background)",
+                  borderColor: "var(--input-border)",
+                  borderWidth: "1px",
+                  padding: "0.5rem 0.75rem",
+                  fontSize: "0.875rem",
+                  color: "var(--text-primary)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-focus)";
+                  e.currentTarget.style.outline = "none";
+                  e.currentTarget.style.boxShadow = "0 0 0 1px var(--input-focus)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               >
                 <option value="">Otomatik (konuya göre)</option>
                 {rubrics.map((r) => (
@@ -475,8 +746,17 @@ export default function ISGWizardPage() {
           )}
 
           {/* Topic summary */}
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">
+          <div
+            className="rounded-lg p-4"
+            style={{
+              border: "1px solid var(--border)",
+              backgroundColor: "var(--card)",
+            }}
+          >
+            <h3
+              className="text-sm font-medium mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
               Konu Dağılımı Özeti
             </h3>
             <div className="space-y-1">
@@ -485,8 +765,8 @@ export default function ISGWizardPage() {
                   key={tw.topic_id}
                   className="flex items-center justify-between text-xs"
                 >
-                  <span className="text-gray-600">{tw.topic_name}</span>
-                  <span className="font-medium text-gray-900">
+                  <span style={{ color: "var(--text-secondary)" }}>{tw.topic_name}</span>
+                  <span style={{ fontWeight: "500", color: "var(--text-primary)" }}>
                     {tw.question_count} soru
                   </span>
                 </div>
@@ -499,14 +779,50 @@ export default function ISGWizardPage() {
               onClick={() =>
                 router.push(`/exams/${examResult.template_id}`)
               }
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              style={{
+                borderRadius: "0.375rem",
+                border: "1px solid var(--border)",
+                backgroundColor: "transparent",
+                color: "var(--text-primary)",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--card-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               Atla ve Şablona Git
             </button>
             <button
               onClick={handleGenerate}
               disabled={generating || questionTypes.length === 0}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              style={{
+                borderRadius: "0.375rem",
+                backgroundColor: generating || questionTypes.length === 0 ? "var(--accent)" : "var(--accent)",
+                color: "white",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                fontWeight: "500",
+                border: "none",
+                cursor: generating || questionTypes.length === 0 ? "not-allowed" : "pointer",
+                opacity: generating || questionTypes.length === 0 ? 0.5 : 1,
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                if (!generating && questionTypes.length > 0) {
+                  e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!generating && questionTypes.length > 0) {
+                  e.currentTarget.style.backgroundColor = "var(--accent)";
+                }
+              }}
             >
               {generating ? "Sorular Üretiliyor..." : "Soruları Üret"}
             </button>
@@ -517,11 +833,17 @@ export default function ISGWizardPage() {
       {/* Step 4: Done */}
       {step === "done" && generateResult && examResult && (
         <div className="space-y-6">
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="text-sm font-medium text-green-800">
+          <div
+            className="rounded-lg border p-4"
+            style={{
+              border: "1px solid var(--success)",
+              backgroundColor: "var(--success-light)",
+            }}
+          >
+            <p className="text-sm font-medium" style={{ color: "var(--success)" }}>
               Soru üretimi tamamlandı!
             </p>
-            <p className="mt-1 text-xs text-green-700">
+            <p className="mt-1 text-xs" style={{ color: "var(--success)" }}>
               {generateResult.total_generated} / {generateResult.total_requested}{" "}
               soru üretildi
             </p>
@@ -529,32 +851,47 @@ export default function ISGWizardPage() {
 
           {/* Per-topic results */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700">
+            <h3
+              className="text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
               Konu Bazlı Sonuçlar
             </h3>
             {generateResult.topic_results.map((tr) => (
               <div
                 key={tr.topic_id}
-                className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-3"
+                className="flex items-center justify-between rounded-md p-3"
+                style={{
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--card)",
+                }}
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {tr.topic_name}
                   </p>
                   {tr.errors.length > 0 && (
-                    <p className="text-xs text-red-500 mt-0.5">
+                    <p
+                      className="text-xs mt-0.5"
+                      style={{ color: "var(--danger)" }}
+                    >
                       {tr.errors.join(", ")}
                     </p>
                   )}
                 </div>
                 <span
-                  className={`text-sm font-medium ${
-                    tr.generated_count === tr.requested_count
-                      ? "text-green-600"
-                      : tr.generated_count > 0
-                        ? "text-amber-600"
-                        : "text-red-600"
-                  }`}
+                  className="text-sm font-medium"
+                  style={{
+                    color:
+                      tr.generated_count === tr.requested_count
+                        ? "var(--success)"
+                        : tr.generated_count > 0
+                          ? "var(--warning)"
+                          : "var(--danger)",
+                  }}
                 >
                   {tr.generated_count}/{tr.requested_count}
                 </span>
@@ -565,13 +902,47 @@ export default function ISGWizardPage() {
           <div className="flex items-center justify-end gap-3">
             <Link
               href="/exams"
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              style={{
+                borderRadius: "0.375rem",
+                border: "1px solid var(--border)",
+                backgroundColor: "transparent",
+                color: "var(--text-primary)",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                textDecoration: "none",
+                display: "inline-block",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--card-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               Sınav Listesi
             </Link>
             <Link
               href={`/exams/${examResult.template_id}`}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              style={{
+                borderRadius: "0.375rem",
+                backgroundColor: "var(--accent)",
+                color: "white",
+                padding: "0.5rem 1rem",
+                fontSize: "0.875rem",
+                fontWeight: "500",
+                textDecoration: "none",
+                display: "inline-block",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--accent)";
+              }}
             >
               Sınavı Görüntüle
             </Link>

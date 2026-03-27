@@ -20,6 +20,7 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -31,13 +32,21 @@ interface AuthState {
   logout: () => void;
   fetchUser: () => Promise<void>;
   setTokens: (tokens: TokenResponse) => void;
+  hydrate: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: false,
-  isAuthenticated:
-    typeof window !== "undefined" && !!localStorage.getItem("access_token"),
+  isAuthenticated: false,
+  isHydrated: false,
+
+  hydrate: () => {
+    if (typeof window !== "undefined") {
+      const hasToken = !!localStorage.getItem("access_token");
+      set({ isAuthenticated: hasToken, isHydrated: true });
+    }
+  },
 
   login: async (email: string, password: string) => {
     set({ isLoading: true });

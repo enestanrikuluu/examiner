@@ -7,12 +7,61 @@ import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import type { SessionResult, Grade } from "@/types";
 
-const methodLabels: Record<string, { label: string; color: string }> = {
-  deterministic: { label: "Otomatik", color: "bg-blue-100 text-blue-800" },
-  llm: { label: "AI", color: "bg-purple-100 text-purple-800" },
-  manual: { label: "Manuel", color: "bg-gray-100 text-gray-800" },
-  fallback: { label: "Beklemede", color: "bg-yellow-100 text-yellow-800" },
+const methodLabels: Record<string, { label: string; accentClass?: string }> = {
+  deterministic: { label: "Otomatik", accentClass: "deterministic" },
+  llm: { label: "AI", accentClass: "llm" },
+  manual: { label: "Manuel", accentClass: "manual" },
+  fallback: { label: "Beklemede", accentClass: "fallback" },
 };
+
+function getMethodBadgeStyle(method: string | undefined) {
+  switch (method) {
+    case "deterministic":
+      return {
+        backgroundColor: "var(--accent-light)",
+        color: "var(--accent)",
+      };
+    case "llm":
+      return {
+        backgroundColor: "var(--special-light)",
+        color: "var(--special)",
+      };
+    case "manual":
+      return {
+        backgroundColor: "#E8DFD0",
+        color: "var(--text-muted)",
+      };
+    case "fallback":
+      return {
+        backgroundColor: "var(--warning-light)",
+        color: "var(--warning)",
+      };
+    default:
+      return {
+        backgroundColor: "var(--border-light)",
+        color: "var(--text-secondary)",
+      };
+  }
+}
+
+function getScoreBadgeStyle(isCorrect: boolean | null) {
+  if (isCorrect === true) {
+    return {
+      backgroundColor: "var(--success-light)",
+      color: "var(--success)",
+    };
+  }
+  if (isCorrect === false) {
+    return {
+      backgroundColor: "var(--danger-light)",
+      color: "var(--danger)",
+    };
+  }
+  return {
+    backgroundColor: "var(--border-light)",
+    color: "var(--text-secondary)",
+  };
+}
 
 export default function SessionResultPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -79,7 +128,10 @@ export default function SessionResultPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--background)", color: "var(--text-muted)" }}
+      >
         Sonuçlar yükleniyor...
       </div>
     );
@@ -87,7 +139,10 @@ export default function SessionResultPage() {
 
   if (!result) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--background)", color: "var(--text-muted)" }}
+      >
         Sonuç bulunamadı.
       </div>
     );
@@ -108,17 +163,44 @@ export default function SessionResultPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--background)" }}
+    >
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Score Summary */}
-        <div className="rounded-lg bg-white border border-gray-200 p-6">
+        <div
+          className="rounded-lg border p-6"
+          style={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Sınav Sonucu</h1>
+            <h1
+              className="text-2xl font-bold"
+              style={{
+                color: "var(--text-primary)",
+                fontFamily: 'var(--font-playfair), Georgia, serif',
+              }}
+            >
+              Sınav Sonucu
+            </h1>
             {session.status === "submitted" && grades.length === 0 && isInstructor && (
               <button
                 onClick={handleGradeSession}
                 disabled={grading}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+                style={{
+                  backgroundColor: grading ? "var(--accent)" : "var(--accent)",
+                  color: "#FFFAF5",
+                }}
+                onMouseEnter={(e) => {
+                  if (!grading) e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!grading) e.currentTarget.style.backgroundColor = "var(--accent)";
+                }}
               >
                 {grading ? "Değerlendiriliyor..." : "Şimdi Değerlendir"}
               </button>
@@ -128,11 +210,16 @@ export default function SessionResultPage() {
           <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {session.total_score !== null && (
               <div>
-                <p className="text-sm text-gray-500">Toplam Puan</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  Toplam Puan
+                </p>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {session.total_score}
                   {session.max_score !== null && (
-                    <span className="text-sm font-normal text-gray-500">
+                    <span className="text-sm font-normal" style={{ color: "var(--text-muted)" }}>
                       /{session.max_score}
                     </span>
                   )}
@@ -141,27 +228,40 @@ export default function SessionResultPage() {
             )}
             {session.percentage !== null && (
               <div>
-                <p className="text-sm text-gray-500">Yüzde</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  Yüzde
+                </p>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   %{session.percentage}
                 </p>
               </div>
             )}
             {session.passed !== null && (
               <div>
-                <p className="text-sm text-gray-500">Durum</p>
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  Durum
+                </p>
                 <p
-                  className={`text-2xl font-bold ${
-                    session.passed ? "text-green-600" : "text-red-600"
-                  }`}
+                  className="text-2xl font-bold"
+                  style={{
+                    color: session.passed ? "var(--success)" : "var(--danger)",
+                  }}
                 >
                   {session.passed ? "Geçti" : "Kaldı"}
                 </p>
               </div>
             )}
             <div>
-              <p className="text-sm text-gray-500">Cevaplanan</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                Cevaplanan
+              </p>
+              <p
+                className="text-2xl font-bold"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {responses.length}
               </p>
             </div>
@@ -171,16 +271,14 @@ export default function SessionResultPage() {
           {grades.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {Object.entries(methodCounts).map(([method, count]) => {
-                const info = methodLabels[method] ?? {
-                  label: method,
-                  color: "bg-gray-100 text-gray-800",
-                };
+                const style = getMethodBadgeStyle(method);
                 return (
                   <span
                     key={method}
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${info.color}`}
+                    className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                    style={style}
                   >
-                    {info.label}: {count}
+                    {methodLabels[method]?.label || method}: {count}
                   </span>
                 );
               })}
@@ -188,7 +286,14 @@ export default function SessionResultPage() {
           )}
 
           {needsManualReview && (
-            <div className="mt-4 rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-700">
+            <div
+              className="mt-4 rounded-md border p-3 text-sm"
+              style={{
+                backgroundColor: "var(--warning-light)",
+                borderColor: "var(--warning)",
+                color: "var(--warning)",
+              }}
+            >
               Bazı sorular düşük güven skoruyla değerlendirildi ve manuel
               inceleme bekliyor.
             </div>
@@ -198,47 +303,55 @@ export default function SessionResultPage() {
         {/* Per-response grades */}
         {grades.length > 0 && (
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2
+              className="text-lg font-semibold"
+              style={{
+                color: "var(--text-primary)",
+                fontFamily: 'var(--font-playfair), Georgia, serif',
+              }}
+            >
               Detaylı Sonuçlar
             </h2>
             {responses.map((resp, i) => {
               const grade = gradeMap.get(resp.id);
               if (!grade) return null;
-              const method = methodLabels[grade.grading_method] ?? {
-                label: grade.grading_method,
-                color: "bg-gray-100 text-gray-800",
-              };
 
               return (
                 <div
                   key={resp.id}
-                  className="rounded-lg border border-gray-200 bg-white p-4 space-y-2"
+                  className="rounded-lg border p-4 space-y-2"
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                  }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-500">
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         Soru {i + 1}
                       </span>
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${method.color}`}
+                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={getMethodBadgeStyle(grade.grading_method)}
                       >
-                        {method.label}
+                        {methodLabels[grade.grading_method]?.label || grade.grading_method}
                       </span>
                       {grade.confidence !== null && grade.confidence < 0.7 && (
-                        <span className="text-xs text-amber-600">
+                        <span
+                          className="text-xs"
+                          style={{ color: "var(--warning)" }}
+                        >
                           Güven: %{Math.round(grade.confidence * 100)}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          grade.is_correct === true
-                            ? "bg-green-100 text-green-800"
-                            : grade.is_correct === false
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-600"
-                        }`}
+                        className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                        style={getScoreBadgeStyle(grade.is_correct)}
                       >
                         {grade.score}/{grade.max_score}
                       </span>
@@ -248,7 +361,20 @@ export default function SessionResultPage() {
                           <button
                             onClick={() => handleRegrade(grade.id)}
                             disabled={regrading === grade.id}
-                            className="text-xs text-purple-600 hover:text-purple-800 disabled:opacity-50"
+                            className="text-xs transition-colors disabled:opacity-50"
+                            style={{
+                              color: "var(--special)",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (regrading !== grade.id) {
+                                e.currentTarget.style.opacity = "0.7";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (regrading !== grade.id) {
+                                e.currentTarget.style.opacity = "1";
+                              }
+                            }}
                           >
                             {regrading === grade.id
                               ? "Yeniden..."
@@ -259,7 +385,10 @@ export default function SessionResultPage() {
                   </div>
 
                   {grade.feedback && (
-                    <p className="text-sm text-gray-600 whitespace-pre-line">
+                    <p
+                      className="text-sm whitespace-pre-line"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       {grade.feedback}
                     </p>
                   )}
@@ -267,13 +396,17 @@ export default function SessionResultPage() {
                   {grade.rubric_scores &&
                     Array.isArray(grade.rubric_scores) && (
                       <div className="mt-2 space-y-1">
-                        <p className="text-xs font-medium text-gray-500">
+                        <p
+                          className="text-xs font-medium"
+                          style={{ color: "var(--text-muted)" }}
+                        >
                           Kriter Puanları:
                         </p>
                         {grade.rubric_scores.map((cs) => (
                           <div
                             key={cs.criterion_id}
-                            className="flex items-center justify-between text-xs text-gray-600"
+                            className="flex items-center justify-between text-xs"
+                            style={{ color: "var(--text-secondary)" }}
                           >
                             <span>{cs.criterion_id}</span>
                             <span>
@@ -291,7 +424,14 @@ export default function SessionResultPage() {
         )}
 
         {grades.length === 0 && session.status === "submitted" && (
-          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-700">
+          <div
+            className="rounded-lg border p-4 text-sm"
+            style={{
+              backgroundColor: "var(--warning-light)",
+              borderColor: "var(--warning)",
+              color: "var(--warning)",
+            }}
+          >
             Sınav değerlendirme sürecinde. Notlandırma tamamlandığında sonuçlar
             burada görünecektir.
           </div>
@@ -299,7 +439,17 @@ export default function SessionResultPage() {
 
         <Link
           href="/"
-          className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="inline-block rounded-md px-4 py-2 text-sm font-medium transition-colors"
+          style={{
+            backgroundColor: "var(--accent)",
+            color: "#FFFAF5",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--accent-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--accent)";
+          }}
         >
           Ana Sayfaya Dön
         </Link>

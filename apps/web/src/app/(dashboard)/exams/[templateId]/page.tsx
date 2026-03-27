@@ -57,11 +57,11 @@ function DocumentSection({ templateId }: { templateId: string }) {
     }
   }
 
-  const statusLabels: Record<string, { label: string; color: string }> = {
-    pending: { label: "Bekliyor", color: "bg-yellow-100 text-yellow-800" },
-    processing: { label: "İşleniyor", color: "bg-blue-100 text-blue-800" },
-    ready: { label: "Hazır", color: "bg-green-100 text-green-800" },
-    failed: { label: "Hata", color: "bg-red-100 text-red-800" },
+  const statusLabels: Record<string, { label: string; bgColor: string; textColor: string }> = {
+    pending: { label: "Bekliyor", bgColor: "var(--warning-light)", textColor: "var(--warning)" },
+    processing: { label: "İşleniyor", bgColor: "var(--accent-light)", textColor: "var(--accent)" },
+    ready: { label: "Hazır", bgColor: "var(--success-light)", textColor: "var(--success)" },
+    failed: { label: "Hata", bgColor: "var(--danger-light)", textColor: "var(--danger)" },
   };
 
   function formatFileSize(bytes: number) {
@@ -73,10 +73,28 @@ function DocumentSection({ templateId }: { templateId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2
+          className="text-lg font-semibold"
+          style={{
+            fontFamily: "var(--font-playfair), Georgia, serif",
+            color: "var(--text-primary)",
+          }}
+        >
           Kaynak Dokümanlar ({documents.length})
         </h2>
-        <label className="cursor-pointer rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200">
+        <label
+          className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          style={{
+            background: "var(--nav)",
+            color: "var(--text-primary)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--border-light)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "var(--nav)";
+          }}
+        >
           {uploading ? "Yükleniyor..." : "Doküman Yükle"}
           <input
             ref={fileInputRef}
@@ -90,7 +108,14 @@ function DocumentSection({ templateId }: { templateId: string }) {
       </div>
 
       {documents.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+        <div
+          className="rounded-lg border p-6 text-center text-sm"
+          style={{
+            borderStyle: "dashed",
+            borderColor: "var(--border)",
+            color: "var(--text-muted)",
+          }}
+        >
           Henüz doküman yüklenmemiş. PDF, DOCX veya TXT dosyaları yükleyerek
           AI soru üretiminde kaynak materyal olarak kullanabilirsiniz.
         </div>
@@ -99,41 +124,75 @@ function DocumentSection({ templateId }: { templateId: string }) {
           {documents.map((doc) => {
             const status = statusLabels[doc.status] ?? {
               label: doc.status,
-              color: "bg-gray-100 text-gray-800",
+              bgColor: "var(--border-light)",
+              textColor: "var(--text-secondary)",
             };
             return (
               <div
                 key={doc.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3"
+                className="flex items-center justify-between rounded-lg border px-4 py-3 transition-colors"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--card)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--card-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--card)";
+                }}
               >
                 <div className="flex items-center gap-3">
                   <div className="text-sm">
-                    <span className="font-medium text-gray-900">
+                    <span
+                      className="font-medium"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {doc.filename}
                     </span>
-                    <span className="ml-2 text-gray-400">
+                    <span
+                      className="ml-2"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {formatFileSize(doc.file_size_bytes)}
                     </span>
                   </div>
                   <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${status.color}`}
+                    className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                    style={{
+                      background: status.bgColor,
+                      color: status.textColor,
+                    }}
                   >
                     {status.label}
                   </span>
                   {doc.status === "ready" && (
-                    <span className="text-xs text-gray-400">
+                    <span
+                      className="text-xs"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {doc.chunk_count} parça
                     </span>
                   )}
                   {doc.error_message && (
-                    <span className="text-xs text-red-500">
+                    <span
+                      className="text-xs"
+                      style={{ color: "var(--danger)" }}
+                    >
                       {doc.error_message}
                     </span>
                   )}
                 </div>
                 <button
                   onClick={() => handleDelete(doc.id)}
-                  className="text-xs text-red-500 hover:text-red-700"
+                  className="text-xs transition-colors"
+                  style={{ color: "var(--danger)" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "var(--accent-hover)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "var(--danger)";
+                  }}
                 >
                   Sil
                 </button>
@@ -207,14 +266,30 @@ function GenerateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+      <div
+        className="w-full max-w-lg rounded-xl p-6 shadow-xl"
+        style={{ background: "var(--card)" }}
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3
+            className="text-lg font-semibold"
+            style={{
+              fontFamily: "var(--font-playfair), Georgia, serif",
+              color: "var(--text-primary)",
+            }}
+          >
             AI ile Soru Üret
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="transition-colors"
+            style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--text-secondary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--text-muted)";
+            }}
           >
             &times;
           </button>
@@ -222,7 +297,10 @@ function GenerateModal({
 
         <form onSubmit={handleGenerate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
               Konu *
             </label>
             <input
@@ -230,12 +308,28 @@ function GenerateModal({
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="ör. İş Sağlığı ve Güvenliği Mevzuatı"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--input-border)",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--accent-light)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className="block text-sm font-medium"
+              style={{ color: "var(--text-primary)" }}
+            >
               Alt Konu
             </label>
             <input
@@ -243,19 +337,48 @@ function GenerateModal({
               value={subtopic}
               onChange={(e) => setSubtopic(e.target.value)}
               placeholder="ör. Risk Değerlendirmesi"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+              style={{
+                background: "var(--background)",
+                border: "1px solid var(--input-border)",
+                color: "var(--text-primary)",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 3px var(--accent-light)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--input-border)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Soru Tipi
               </label>
               <select
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--input-border)",
+                  color: "var(--text-primary)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px var(--accent-light)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               >
                 {typeOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -265,7 +388,10 @@ function GenerateModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Adet
               </label>
               <input
@@ -276,14 +402,30 @@ function GenerateModal({
                 }
                 min={1}
                 max={50}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--input-border)",
+                  color: "var(--text-primary)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px var(--accent-light)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label
+                className="block text-sm font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Zorluk (1-5)
               </label>
               <input
@@ -295,17 +437,37 @@ function GenerateModal({
                 min={1}
                 max={5}
                 placeholder="Opsiyonel"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md px-3 py-2 text-sm"
+                style={{
+                  background: "var(--background)",
+                  border: "1px solid var(--input-border)",
+                  color: "var(--text-primary)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px var(--accent-light)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--input-border)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
             </div>
             <div className="flex items-end">
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label
+                className="flex items-center gap-2 text-sm"
+                style={{ color: "var(--text-primary)" }}
+              >
                 <input
                   type="checkbox"
                   checked={useRag}
                   onChange={(e) => setUseRag(e.target.checked)}
                   disabled={!hasDocuments}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded"
+                  style={{
+                    borderColor: "var(--input-border)",
+                    accentColor: "var(--special)",
+                  }}
                 />
                 Kaynak dokümanlardan yararlan
               </label>
@@ -313,21 +475,49 @@ function GenerateModal({
           </div>
 
           {error && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm" style={{ color: "var(--danger)" }}>
+              {error}
+            </p>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--border-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               Vazgeç
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+              className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
+              style={{
+                background: loading ? "var(--text-muted)" : "var(--special)",
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = "var(--special-light)";
+                  e.currentTarget.style.color = "var(--special)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = "var(--special)";
+                  e.currentTarget.style.color = "white";
+                }
+              }}
             >
               {loading ? "Üretiliyor..." : "Üret"}
             </button>
@@ -381,21 +571,46 @@ function ReviewPanel({
   };
 
   return (
-    <div className="space-y-4 rounded-xl border border-purple-200 bg-purple-50 p-5">
+    <div
+      className="space-y-4 rounded-xl border p-5"
+      style={{
+        borderColor: "var(--special-light)",
+        background: "var(--special-light)",
+      }}
+    >
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3
+          className="text-lg font-semibold"
+          style={{
+            fontFamily: "var(--font-playfair), Georgia, serif",
+            color: "var(--text-primary)",
+          }}
+        >
           Üretilen Sorular ({questions.length})
         </h3>
         <button
           onClick={onClose}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-sm transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-muted)";
+          }}
         >
           Kapat
         </button>
       </div>
 
       {errors.length > 0 && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          className="rounded-md p-3 text-sm"
+          style={{
+            background: "var(--danger-light)",
+            color: "var(--danger)",
+          }}
+        >
           <p className="font-medium">Hatalar:</p>
           <ul className="mt-1 list-inside list-disc">
             {errors.map((err, i) => (
@@ -410,17 +625,31 @@ function ReviewPanel({
           <div className="flex items-center gap-3 text-sm">
             <button
               onClick={selectAll}
-              className="text-blue-600 hover:text-blue-800"
+              className="transition-colors"
+              style={{ color: "var(--link)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--link)";
+              }}
             >
               Tümünü Seç
             </button>
             <button
               onClick={deselectAll}
-              className="text-blue-600 hover:text-blue-800"
+              className="transition-colors"
+              style={{ color: "var(--link)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--link)";
+              }}
             >
               Seçimi Kaldır
             </button>
-            <span className="text-gray-500">
+            <span style={{ color: "var(--text-muted)" }}>
               {selected.size} / {questions.length} seçili
             </span>
           </div>
@@ -429,34 +658,64 @@ function ReviewPanel({
             {questions.map((q, i) => (
               <div
                 key={i}
-                className={`rounded-lg border bg-white p-4 transition-colors ${
-                  selected.has(i)
-                    ? "border-purple-400"
-                    : "border-gray-200 opacity-60"
-                }`}
+                className="rounded-lg border p-4 transition-colors"
+                style={{
+                  borderColor: selected.has(i)
+                    ? "var(--special)"
+                    : "var(--border)",
+                  background: selected.has(i) ? "var(--card)" : "rgba(255,255,255,0.6)",
+                  opacity: selected.has(i) ? 1 : 0.6,
+                }}
+                onMouseEnter={(e) => {
+                  if (!selected.has(i)) {
+                    e.currentTarget.style.opacity = "0.8";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selected.has(i)) {
+                    e.currentTarget.style.opacity = "0.6";
+                  }
+                }}
               >
                 <div className="flex items-start gap-3">
                   <input
                     type="checkbox"
                     checked={selected.has(i)}
                     onChange={() => toggleSelect(i)}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    className="mt-1 h-4 w-4 rounded"
+                    style={{
+                      borderColor: "var(--input-border)",
+                      accentColor: "var(--special)",
+                    }}
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">
+                      <span
+                        className="rounded px-1.5 py-0.5"
+                        style={{
+                          background: "var(--border-light)",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
                         {questionTypeLabels[q.question_type] ?? q.question_type}
                       </span>
                       {q.topic && (
-                        <span className="text-gray-400">{q.topic}</span>
+                        <span style={{ color: "var(--text-muted)" }}>
+                          {q.topic}
+                        </span>
                       )}
                       {q.difficulty != null && (
-                        <span className="text-gray-400">
+                        <span style={{ color: "var(--text-muted)" }}>
                           Zorluk: {q.difficulty}
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-gray-900">{q.stem}</p>
+                    <p
+                      className="mt-1 text-sm"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {q.stem}
+                    </p>
 
                     {q.options && q.options.length > 0 && (
                       <ul className="mt-2 space-y-1">
@@ -467,11 +726,13 @@ function ReviewPanel({
                           return (
                             <li
                               key={opt.key}
-                              className={`text-sm ${
-                                isCorrect
-                                  ? "font-medium text-green-700"
-                                  : "text-gray-600"
-                              }`}
+                              className="text-sm"
+                              style={{
+                                color: isCorrect
+                                  ? "var(--success)"
+                                  : "var(--text-secondary)",
+                                fontWeight: isCorrect ? "500" : "normal",
+                              }}
                             >
                               {opt.key}) {opt.text}
                               {isCorrect && " ✓"}
@@ -482,7 +743,10 @@ function ReviewPanel({
                     )}
 
                     {q.explanation && (
-                      <p className="mt-2 text-xs text-gray-500">
+                      <p
+                        className="mt-2 text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         Açıklama: {q.explanation}
                       </p>
                     )}
@@ -492,7 +756,8 @@ function ReviewPanel({
                         {q.warnings.map((w, wi) => (
                           <p
                             key={wi}
-                            className="text-xs text-amber-600"
+                            className="text-xs"
+                            style={{ color: "var(--warning)" }}
                           >
                             ⚠ {w}
                           </p>
@@ -508,14 +773,41 @@ function ReviewPanel({
           <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={onClose}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--border-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               Vazgeç
             </button>
             <button
               onClick={() => onAccept(Array.from(selected))}
               disabled={selected.size === 0}
-              className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+              className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
+              style={{
+                background:
+                  selected.size === 0
+                    ? "var(--text-muted)"
+                    : "var(--special)",
+                opacity: selected.size === 0 ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (selected.size > 0) {
+                  e.currentTarget.style.background = "var(--accent-hover)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selected.size > 0) {
+                  e.currentTarget.style.background = "var(--special)";
+                }
+              }}
             >
               Seçilenleri Ekle ({selected.size})
             </button>
@@ -655,13 +947,23 @@ export default function TemplateDetailPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
+      <div
+        className="text-center py-12"
+        style={{ color: "var(--text-muted)" }}
+      >
+        Yükleniyor...
+      </div>
     );
   }
 
   if (!template) {
     return (
-      <div className="text-center py-12 text-gray-500">Şablon bulunamadı.</div>
+      <div
+        className="text-center py-12"
+        style={{ color: "var(--text-muted)" }}
+      >
+        Şablon bulunamadı.
+      </div>
     );
   }
 
@@ -679,23 +981,41 @@ export default function TemplateDetailPage() {
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1
+              className="text-2xl font-bold"
+              style={{
+                fontFamily: "var(--font-playfair), Georgia, serif",
+                color: "var(--text-primary)",
+              }}
+            >
               {template.title}
             </h1>
             <span
-              className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                template.is_published
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+              className="inline-flex rounded-full px-2 py-1 text-xs font-medium"
+              style={{
+                background: template.is_published
+                  ? "var(--success-light)"
+                  : "var(--warning-light)",
+                color: template.is_published
+                  ? "var(--success)"
+                  : "var(--warning)",
+              }}
             >
               {template.is_published ? "Yayında" : "Taslak"}
             </span>
           </div>
           {template.description && (
-            <p className="mt-1 text-sm text-gray-600">{template.description}</p>
+            <p
+              className="mt-1 text-sm"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {template.description}
+            </p>
           )}
-          <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
+          <div
+            className="mt-2 flex items-center gap-4 text-xs"
+            style={{ color: "var(--text-muted)" }}
+          >
             <span>{template.locale}</span>
             {template.time_limit_minutes && (
               <span>{template.time_limit_minutes} dk</span>
@@ -710,13 +1030,30 @@ export default function TemplateDetailPage() {
             <>
               <button
                 onClick={handleStartAdaptive}
-                className="rounded-md border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50"
+                className="rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+                style={{
+                  borderColor: "var(--special)",
+                  color: "var(--special)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--special-light)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                }}
               >
                 Adaptif Sinav
               </button>
               <button
                 onClick={handleStartSession}
-                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
+                style={{ background: "var(--success)" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.9";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
               >
                 Sinava Basla
               </button>
@@ -725,7 +1062,14 @@ export default function TemplateDetailPage() {
           {isOwner && !template.is_published && (
             <button
               onClick={handlePublish}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
+              style={{ background: "var(--accent)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--accent-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--accent)";
+              }}
             >
               Yayınla
             </button>
@@ -733,7 +1077,17 @@ export default function TemplateDetailPage() {
           {isOwner && !template.is_published && (
             <button
               onClick={handleDelete}
-              className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+              className="rounded-md border px-4 py-2 text-sm font-medium transition-colors"
+              style={{
+                borderColor: "var(--danger)",
+                color: "var(--danger)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--danger-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               Sil
             </button>
@@ -761,20 +1115,40 @@ export default function TemplateDetailPage() {
       {/* Questions section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2
+            className="text-lg font-semibold"
+            style={{
+              fontFamily: "var(--font-playfair), Georgia, serif",
+              color: "var(--text-primary)",
+            }}
+          >
             Sorular ({questions.length})
           </h2>
           {isOwner && (
             <div className="flex gap-2">
               <button
                 onClick={() => setShowGenerateModal(true)}
-                className="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-purple-700"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors"
+                style={{ background: "var(--special)" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--accent-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--special)";
+                }}
               >
                 AI ile Üret
               </button>
               <Link
                 href={`/exams/${templateId}/questions`}
-                className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors"
+                style={{ background: "var(--accent)" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--accent-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--accent)";
+                }}
               >
                 Manuel Ekle
               </Link>
@@ -783,7 +1157,14 @@ export default function TemplateDetailPage() {
         </div>
 
         {questions.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500">
+          <div
+            className="rounded-lg border p-8 text-center text-sm"
+            style={{
+              borderStyle: "dashed",
+              borderColor: "var(--border)",
+              color: "var(--text-muted)",
+            }}
+          >
             Henüz soru eklenmemiş.
             {isOwner &&
               " Soru eklemek için yukarıdaki butonları kullanın."}
@@ -793,25 +1174,60 @@ export default function TemplateDetailPage() {
             {questions.map((q, i) => (
               <div
                 key={q.id}
-                className="rounded-lg border border-gray-200 bg-white p-4"
+                className="rounded-lg border p-4 transition-colors"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--card)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--card-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--card)";
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-400">
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         {i + 1}.
                       </span>
-                      <span className="inline-flex rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                      <span
+                        className="inline-flex rounded px-1.5 py-0.5 text-xs"
+                        style={{
+                          background: "var(--border-light)",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
                         {questionTypeLabels[q.question_type] ?? q.question_type}
                       </span>
                       {q.topic && (
-                        <span className="text-xs text-gray-400">{q.topic}</span>
+                        <span
+                          className="text-xs"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {q.topic}
+                        </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-gray-900">{q.stem}</p>
+                    <p
+                      className="mt-1 text-sm"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {q.stem}
+                    </p>
                   </div>
                   {!q.is_active && (
-                    <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-600">
+                    <span
+                      className="rounded px-1.5 py-0.5 text-xs"
+                      style={{
+                        background: "var(--danger-light)",
+                        color: "var(--danger)",
+                      }}
+                    >
                       Pasif
                     </span>
                   )}

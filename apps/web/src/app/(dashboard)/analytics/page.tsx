@@ -17,22 +17,31 @@ function StatCard({
   label,
   value,
   sub,
-  color = "blue",
+  color = "accent",
 }: {
   label: string;
   value: string | number;
   sub?: string;
-  color?: "blue" | "green" | "purple" | "amber" | "red";
+  color?: "accent" | "success" | "special" | "warning" | "danger";
 }) {
-  const colors = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-green-50 text-green-600",
-    purple: "bg-purple-50 text-purple-600",
-    amber: "bg-amber-50 text-amber-600",
-    red: "bg-red-50 text-red-600",
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    accent: { bg: "var(--accent-light)", text: "var(--accent)" },
+    success: { bg: "var(--success-light)", text: "var(--success)" },
+    special: { bg: "var(--special-light)", text: "var(--special)" },
+    warning: { bg: "var(--warning-light)", text: "var(--warning)" },
+    danger: { bg: "var(--danger-light)", text: "var(--danger)" },
   };
+
+  const colors = colorMap[color];
+
   return (
-    <div className={`rounded-lg p-4 ${colors[color]}`}>
+    <div
+      className="rounded-lg p-4"
+      style={{
+        backgroundColor: colors.bg,
+        color: colors.text,
+      }}
+    >
       <p className="text-sm font-medium">{label}</p>
       <p className="text-2xl font-bold mt-1">{value}</p>
       {sub && <p className="text-xs mt-1 opacity-75">{sub}</p>}
@@ -48,8 +57,20 @@ function ScoreHistogram({ distribution }: { distribution: ScoreDistribution }) {
   const maxCount = Math.max(...distribution.distribution.map((b) => b.count), 1);
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+    <div
+      className="rounded-lg p-5"
+      style={{
+        backgroundColor: "var(--card)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <h3
+        className="text-sm font-semibold mb-4"
+        style={{
+          color: "var(--text-primary)",
+          fontFamily: "var(--font-playfair), Georgia, serif",
+        }}
+      >
         Puan Dagilimi
       </h3>
       <div className="flex items-end gap-1 h-32">
@@ -60,15 +81,24 @@ function ScoreHistogram({ distribution }: { distribution: ScoreDistribution }) {
               key={i}
               className="flex-1 flex flex-col items-center gap-1"
             >
-              <span className="text-[10px] text-gray-400">
+              <span
+                className="text-[10px]"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {bucket.count > 0 ? bucket.count : ""}
               </span>
               <div
-                className="w-full bg-blue-400 rounded-t"
-                style={{ height: `${Math.max(height, 2)}%` }}
+                className="w-full rounded-t"
+                style={{
+                  height: `${Math.max(height, 2)}%`,
+                  backgroundColor: "var(--accent)",
+                }}
                 title={`%${bucket.range_start}-${bucket.range_end}: ${bucket.count} oturum`}
               />
-              <span className="text-[9px] text-gray-400">
+              <span
+                className="text-[9px]"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {bucket.range_start.toFixed(0)}
               </span>
             </div>
@@ -93,8 +123,20 @@ function DifficultItems({ items }: { items: ItemAnalysis["items"] }) {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+    <div
+      className="rounded-lg p-5"
+      style={{
+        backgroundColor: "var(--card)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <h3
+        className="text-sm font-semibold mb-4"
+        style={{
+          color: "var(--text-primary)",
+          fontFamily: "var(--font-playfair), Georgia, serif",
+        }}
+      >
         En Zor Sorular
       </h3>
       <div className="space-y-2">
@@ -104,25 +146,39 @@ function DifficultItems({ items }: { items: ItemAnalysis["items"] }) {
             className="flex items-center justify-between text-sm"
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="inline-flex rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600 flex-shrink-0">
+              <span
+                className="inline-flex rounded px-1.5 py-0.5 text-[10px] flex-shrink-0"
+                style={{
+                  backgroundColor: "var(--card-hover)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 {typeLabels[item.question_type] ?? item.question_type}
               </span>
-              <span className="text-gray-700 truncate">
+              <span
+                className="truncate"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {item.stem_preview}
               </span>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-              <span className="text-gray-400 text-xs">
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {item.response_count} cevap
               </span>
               <span
-                className={`font-medium ${
-                  item.p_value < 0.3
-                    ? "text-red-600"
-                    : item.p_value < 0.7
-                      ? "text-amber-600"
-                      : "text-green-600"
-                }`}
+                className="font-medium"
+                style={{
+                  color:
+                    item.p_value < 0.3
+                      ? "var(--danger)"
+                      : item.p_value < 0.7
+                        ? "var(--warning)"
+                        : "var(--success)",
+                }}
               >
                 %{(item.p_value * 100).toFixed(0)}
               </span>
@@ -166,8 +222,20 @@ function PerformanceChart({
     .join(" ");
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+    <div
+      className="rounded-lg p-5"
+      style={{
+        backgroundColor: "var(--card)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <h3
+        className="text-sm font-semibold mb-4"
+        style={{
+          color: "var(--text-primary)",
+          fontFamily: "var(--font-playfair), Georgia, serif",
+        }}
+      >
         Performans Seyri (Son 30 Gun)
       </h3>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
@@ -181,20 +249,26 @@ function PerformanceChart({
                 y1={yScale(v)}
                 x2={width - pad.right}
                 y2={yScale(v)}
-                stroke="#f3f4f6"
+                stroke="var(--border-light)"
               />
               <text
                 x={pad.left - 5}
                 y={yScale(v) + 4}
                 textAnchor="end"
-                className="text-[10px] fill-gray-400"
+                className="text-[10px]"
+                style={{ fill: "var(--text-muted)" }}
               >
                 %{v}
               </text>
             </g>
           ))}
         {/* Line */}
-        <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth={2} />
+        <path
+          d={linePath}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth={2}
+        />
         {/* Points */}
         {points.map((p, i) => (
           <circle
@@ -202,7 +276,7 @@ function PerformanceChart({
             cx={xScale(i)}
             cy={yScale(p.mean_percentage ?? 0)}
             r={3}
-            fill="#3b82f6"
+            fill="var(--accent)"
           />
         ))}
         {/* X labels (first, mid, last) */}
@@ -212,7 +286,8 @@ function PerformanceChart({
             x={xScale(i)}
             y={height - 5}
             textAnchor="middle"
-            className="text-[9px] fill-gray-400"
+            className="text-[9px]"
+            style={{ fill: "var(--text-muted)" }}
           >
             {points[i]?.date.slice(5) ?? ""}
           </text>
@@ -311,7 +386,9 @@ export default function AnalyticsPage() {
 
   if (loading && !dashboard) {
     return (
-      <div className="text-center py-12 text-gray-500">Yukleniyor...</div>
+      <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>
+        Yukleniyor...
+      </div>
     );
   }
 
@@ -320,8 +397,19 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analiz</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1
+            className="text-2xl font-bold"
+            style={{
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-playfair), Georgia, serif",
+            }}
+          >
+            Analiz
+          </h1>
+          <p
+            className="mt-1 text-sm"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Sinav performansi ve soru analizi
           </p>
         </div>
@@ -330,7 +418,21 @@ export default function AnalyticsPage() {
           <select
             value={selectedTemplate}
             onChange={(e) => setSelectedTemplate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+            className="rounded-md px-3 py-1.5 text-sm"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--input-border)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--input-border)",
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.boxShadow = "0 0 0 1px var(--accent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--input-border)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
             {templates.map((t) => (
               <option key={t.id} value={t.id}>
@@ -345,14 +447,48 @@ export default function AnalyticsPage() {
               <button
                 onClick={() => handleExport("csv")}
                 disabled={exporting}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-md px-3 py-1.5 text-sm"
+                style={{
+                  borderColor: "var(--border)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "transparent",
+                  opacity: exporting ? 0.5 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!exporting) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      "var(--card-hover)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    "transparent";
+                }}
               >
                 CSV
               </button>
               <button
                 onClick={() => handleExport("pdf")}
                 disabled={exporting}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-md px-3 py-1.5 text-sm"
+                style={{
+                  borderColor: "var(--border)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "transparent",
+                  opacity: exporting ? 0.5 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!exporting) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      "var(--card-hover)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor =
+                    "transparent";
+                }}
               >
                 Rapor
               </button>
@@ -368,12 +504,12 @@ export default function AnalyticsPage() {
             <StatCard
               label="Toplam Oturum"
               value={dashboard.session_summary.total_sessions}
-              color="blue"
+              color="accent"
             />
             <StatCard
               label="Notlanan"
               value={dashboard.session_summary.graded}
-              color="green"
+              color="success"
             />
             <StatCard
               label="Ortalama Puan"
@@ -382,7 +518,7 @@ export default function AnalyticsPage() {
                   ? `%${dashboard.session_summary.avg_percentage}`
                   : "-"
               }
-              color="purple"
+              color="special"
             />
             <StatCard
               label="Gecme Orani"
@@ -391,7 +527,7 @@ export default function AnalyticsPage() {
                   ? `%${dashboard.session_summary.pass_rate}`
                   : "-"
               }
-              color="amber"
+              color="warning"
             />
           </div>
 
@@ -410,20 +546,32 @@ export default function AnalyticsPage() {
 
             {/* AI Costs */}
             {dashboard.ai_cost_summary && (
-              <div className="rounded-lg border border-gray-200 bg-white p-5">
-                <h3 className="text-sm font-semibold text-gray-900 mb-4">
+              <div
+                className="rounded-lg p-5"
+                style={{
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <h3
+                  className="text-sm font-semibold mb-4"
+                  style={{
+                    color: "var(--text-primary)",
+                    fontFamily: "var(--font-playfair), Georgia, serif",
+                  }}
+                >
                   AI Maliyetleri (Son 30 Gun)
                 </h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <StatCard
                     label="Toplam Maliyet"
                     value={`$${dashboard.ai_cost_summary.total_cost_usd.toFixed(4)}`}
-                    color="red"
+                    color="danger"
                   />
                   <StatCard
                     label="Toplam Cagri"
                     value={dashboard.ai_cost_summary.total_calls}
-                    color="purple"
+                    color="special"
                   />
                 </div>
                 {dashboard.ai_cost_summary.by_task.length > 0 && (
@@ -433,14 +581,22 @@ export default function AnalyticsPage() {
                         key={t.task_type}
                         className="flex items-center justify-between text-sm"
                       >
-                        <span className="text-gray-600 capitalize">
+                        <span
+                          className="capitalize"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
                           {t.task_type}
                         </span>
                         <div className="flex items-center gap-4">
-                          <span className="text-gray-400">
+                          <span
+                            style={{ color: "var(--text-muted)" }}
+                          >
                             {t.call_count} cagri
                           </span>
-                          <span className="font-medium text-gray-900">
+                          <span
+                            className="font-medium"
+                            style={{ color: "var(--text-primary)" }}
+                          >
                             ${t.total_cost_usd.toFixed(4)}
                           </span>
                         </div>
