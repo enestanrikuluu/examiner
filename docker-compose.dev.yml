@@ -32,12 +32,12 @@ services:
   worker:
     build:
       context: .
-      dockerfile: docker/worker.Dockerfile
+      dockerfile: docker/api.Dockerfile
       target: dev
     volumes:
-      - ./apps/worker:/app
+      - ./apps/api:/app
       - ./packages/shared/python:/packages/shared/python
-    command: celery -A src.celery_app worker -l debug -Q default,grading,generation,export,calibration
+    command: celery -A src.tasks.celery_app worker -l debug -Q default,grading,generation,export,calibration
 
   web:
     build:

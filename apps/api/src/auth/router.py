@@ -12,11 +12,12 @@ from src.auth.service import AuthService
 from src.core.config import settings
 from src.core.database import get_db
 from src.core.exceptions import UnauthorizedError, ValidationError
+from src.core.rate_limit import auth_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=201)
+@router.post("/register", response_model=TokenResponse, status_code=201, dependencies=[Depends(auth_rate_limit)])
 async def register(
     body: RegisterRequest,
     db: AsyncSession = Depends(get_db),
@@ -31,7 +32,7 @@ async def register(
     return tokens
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(
     body: LoginRequest,
     db: AsyncSession = Depends(get_db),

@@ -88,6 +88,12 @@ info "Applying migrations..."
 docker compose exec -T api alembic upgrade head || error "Migration failed. Check: docker compose logs api"
 info "Migrations applied."
 
+# --- Seed admin (optional) ---
+if [ -n "${ADMIN_PASSWORD:-}" ]; then
+    info "Creating admin user..."
+    docker compose exec -T api python scripts/seed_admin.py || warn "Admin seed failed (user may already exist)"
+fi
+
 # --- Start all services ---
 info "Starting all services..."
 docker compose up -d
@@ -140,3 +146,37 @@ echo "  docker compose restart           # Restart all"
 echo "  docker compose down              # Stop everything"
 echo "  docker compose up -d --build     # Rebuild & restart"
 echo ""
+
+# --- Setup backups (optional) ---
+setup_backups() {
+    info "Setting up daily Postgres backups..."
+
+    # Create backups directory
+    mkdir -p ~/backups
+
+    # Create backup script
+    cat > ~/backups/backup-examiner.sh << 'BACKUP_SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+BACKUP_DIR="$HOME/backups"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+docker compose -f /root/examiner/docker-compose.yml exec -T postgres pg_dump -U examiner examiner | gzip > "$BACKUP_DIR/examiner_$TIMESTAMP.sql.gz"
+# Delete backups older than 7 days
+find "$BACKUP_DIR" -name "examiner_*.sql.gz" -mtime +7 -delete
+BACKUP_SCRIPT
+
+    chmod +x ~/backups/backup-examiner.sh
+
+    # Add to crontab if not already present
+    if ! (crontab -l 2>/dev/null | grep -q "backup-examiner.sh"); then
+        (crontab -l 2>/dev/null; echo "0 3 * * * $HOME/backups/backup-examiner.sh") | crontab -
+        info "Daily backup cron job added (runs at 3 AM)"
+    else
+        info "Backup job already in crontab"
+    fi
+
+    info "Backups are configured!"
+}
+
+# Uncomment the line below to enable daily backups
+# setup_backups

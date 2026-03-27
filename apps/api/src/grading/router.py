@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependencies import get_current_user, require_instructor
 from src.core.database import get_db
+from src.core.rate_limit import ai_rate_limit
 from src.grading.schemas import GradeOverride
 from src.grading.service import GradingService
 from src.sessions.schemas import GradeOut, SessionOut
@@ -13,7 +14,7 @@ from src.users.models import User
 router = APIRouter(prefix="/grading", tags=["grading"])
 
 
-@router.post("/sessions/{session_id}/grade", response_model=SessionOut)
+@router.post("/sessions/{session_id}/grade", response_model=SessionOut, dependencies=[Depends(ai_rate_limit)])
 async def grade_session(
     session_id: uuid.UUID,
     user: User = Depends(get_current_user),

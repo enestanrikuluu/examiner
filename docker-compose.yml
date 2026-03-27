@@ -81,8 +81,9 @@ services:
   worker:
     build:
       context: .
-      dockerfile: docker/worker.Dockerfile
+      dockerfile: docker/api.Dockerfile
       target: prod
+    command: ["celery", "-A", "src.tasks.celery_app", "worker", "-l", "info", "-Q", "default,grading,generation,export,calibration", "-c", "2"]
     restart: unless-stopped
     depends_on:
       postgres:

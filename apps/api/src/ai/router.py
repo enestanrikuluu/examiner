@@ -17,12 +17,13 @@ from src.ai.service import AIService
 from src.auth.dependencies import get_current_user, require_instructor
 from src.core.database import get_db
 from src.core.exceptions import ValidationError
+from src.core.rate_limit import ai_rate_limit
 from src.users.models import User
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 
-@router.post("/generate", response_model=GenerateResultOut)
+@router.post("/generate", response_model=GenerateResultOut, dependencies=[Depends(ai_rate_limit)])
 async def generate_questions(
     body: GenerateRequest,
     user: User = Depends(require_instructor),
