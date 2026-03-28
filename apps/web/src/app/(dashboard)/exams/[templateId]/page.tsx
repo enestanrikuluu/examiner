@@ -207,6 +207,116 @@ function DocumentSection({ templateId }: { templateId: string }) {
 
 // ─── Generate Questions Modal ────────────────────────────────────────
 
+// ─── Progress Overlay ────────────────────────────────────────────────
+
+function GenerationProgress({ count, useRag }: { count: number; useRag: boolean }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  const steps = [
+    { label: "Konu analiz ediliyor...", icon: "🔍" },
+    ...(useRag ? [{ label: "Kaynak dokümanlar taranıyor...", icon: "📄" }] : []),
+    { label: "Sorular oluşturuluyor...", icon: "✍️" },
+    { label: `${count} soru yapılandırılıyor...`, icon: "🧩" },
+    { label: "Kalite kontrolü yapılıyor...", icon: "✅" },
+    { label: "Son düzenlemeler...", icon: "🎯" },
+  ];
+
+  useEffect(() => {
+    const stepDuration = 3500;
+    const interval = setInterval(() => {
+      setStepIndex((prev) => (prev + 1) % steps.length);
+    }, stepDuration);
+    return () => clearInterval(interval);
+  }, [steps.length]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 92) return 92;
+        const increment = Math.random() * 3 + 0.5;
+        return Math.min(92, prev + increment);
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentStep = steps[stepIndex];
+
+  return (
+    <div className="space-y-6 py-4">
+      {/* Animated icon */}
+      <div className="flex justify-center">
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+          style={{
+            background: "var(--special-light)",
+            animation: "pulse 2s ease-in-out infinite",
+          }}
+        >
+          {currentStep.icon}
+        </div>
+      </div>
+
+      {/* Status text */}
+      <div className="text-center">
+        <p
+          className="text-sm font-medium transition-opacity duration-300"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {currentStep.label}
+        </p>
+        <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+          Bu işlem birkaç saniye sürebilir
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mx-4">
+        <div
+          className="h-2 rounded-full overflow-hidden"
+          style={{ background: "var(--border-light)" }}
+        >
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, var(--special), var(--accent))",
+              transition: "width 0.3s ease-out",
+            }}
+          />
+        </div>
+        <div className="mt-2 flex justify-between text-xs" style={{ color: "var(--text-muted)" }}>
+          <span>İlerleme</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+      </div>
+
+      {/* Step indicators */}
+      <div className="flex justify-center gap-1.5">
+        {steps.map((_, i) => (
+          <div
+            key={i}
+            className="h-1.5 rounded-full transition-all duration-300"
+            style={{
+              width: i === stepIndex ? "24px" : "8px",
+              background: i === stepIndex ? "var(--special)" : "var(--border)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Inline keyframes */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.08); opacity: 0.85; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function GenerateModal({
   templateId,
   locale,
@@ -295,6 +405,9 @@ function GenerateModal({
           </button>
         </div>
 
+        {loading ? (
+          <GenerationProgress count={count} useRag={useRag} />
+        ) : (
         <form onSubmit={handleGenerate} className="space-y-4">
           <div>
             <label
@@ -523,6 +636,7 @@ function GenerateModal({
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );
