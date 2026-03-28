@@ -44,8 +44,18 @@ class AnthropicProvider(AIProvider):
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
-        if system_prompt:
-            kwargs["system"] = system_prompt
+
+        effective_system = system_prompt or ""
+        if json_mode:
+            json_instruction = (
+                "\n\nIMPORTANT: You MUST respond with valid JSON only. "
+                "No markdown, no code fences, no explanatory text. "
+                "Output raw JSON starting with { and ending with }."
+            )
+            effective_system = (effective_system + json_instruction).strip()
+
+        if effective_system:
+            kwargs["system"] = effective_system
 
         response = await self.client.messages.create(**kwargs)
 

@@ -124,7 +124,18 @@ class AIService:
 
         # 6. Parse JSON response
         try:
-            data = json.loads(ai_response.content)
+            raw_content = ai_response.content.strip()
+            # Strip markdown code fences if present
+            if raw_content.startswith("```"):
+                lines = raw_content.split("\n")
+                # Remove first line (```json or ```) and last line (```)
+                lines = lines[1:]
+                if lines and lines[-1].strip() == "```":
+                    lines = lines[:-1]
+                raw_content = "\n".join(lines).strip()
+            if not raw_content:
+                return [], ["AI returned empty response"], trace_id
+            data = json.loads(raw_content)
             raw_questions = data.get("questions", [])
         except json.JSONDecodeError as e:
             return [], [f"Failed to parse AI response as JSON: {e}"], trace_id
