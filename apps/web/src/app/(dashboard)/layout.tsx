@@ -69,6 +69,15 @@ export default function DashboardLayout({
                 >
                   Sınavlar
                 </Link>
+                <Link
+                  href="/my-exams"
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--card-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                >
+                  Sınavlarım
+                </Link>
                 {user?.role === "admin" && (
                   <Link
                     href="/admin/users"
