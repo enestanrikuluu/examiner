@@ -4,10 +4,23 @@ import asyncio
 import uuid
 import logging
 
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
 from src.tasks.celery_app import celery_app
-from src.core.database import async_session_factory
+from src.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def _create_session_factory() -> async_sessionmaker[AsyncSession]:
+    """Create a fresh engine + session factory for this event loop."""
+    engine = create_async_engine(
+        settings.database_url,
+        pool_size=5,
+        max_overflow=2,
+        pool_pre_ping=True,
+    )
+    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def _execute_isg_generation(
@@ -24,7 +37,9 @@ async def _execute_isg_generation(
     from src.questions.repository import QuestionItemRepository
     from src.questions.schemas import QuestionItemCreate
 
-    async with async_session_factory() as db:
+    session_factory = _create_session_factory()
+
+    async with session_factory() as db:
         try:
             template_repo = ExamTemplateRepository(db)
             question_repo = QuestionItemRepository(db)

@@ -11,6 +11,7 @@ def load_all_models(**kwargs):
     import src.questions.models  # noqa: F401
     import src.users.models  # noqa: F401
     import src.ai.models  # noqa: F401
+    import src.grading.models  # noqa: F401
 
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
