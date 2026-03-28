@@ -1,5 +1,17 @@
 import os
 from celery import Celery
+from celery.signals import worker_init
+
+
+@worker_init.connect
+def load_all_models(**kwargs):
+    """Ensure all SQLAlchemy models are imported so relationships resolve."""
+    import src.exams.models  # noqa: F401
+    import src.sessions.models  # noqa: F401
+    import src.questions.models  # noqa: F401
+    import src.users.models  # noqa: F401
+    import src.ai.models  # noqa: F401
+
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
