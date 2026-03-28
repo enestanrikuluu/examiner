@@ -32,6 +32,8 @@ function formatDate(dateStr: string) {
   });
 }
 
+const ADMIN_PANEL_KEY = "admin2024";
+
 export default function AdminUsersPage() {
   const { user } = useAuthStore();
   const router = useRouter();
@@ -42,6 +44,9 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
+  const [unlocked, setUnlocked] = useState(false);
+  const [passInput, setPassInput] = useState("");
+  const [passError, setPassError] = useState(false);
   const pageSize = 20;
 
   useEffect(() => {
@@ -49,6 +54,22 @@ export default function AdminUsersPage() {
       router.push("/");
     }
   }, [user, router]);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("admin_panel_unlocked");
+    if (stored === "true") setUnlocked(true);
+  }, []);
+
+  const handleUnlock = () => {
+    if (passInput === ADMIN_PANEL_KEY) {
+      setUnlocked(true);
+      setPassError(false);
+      sessionStorage.setItem("admin_panel_unlocked", "true");
+    } else {
+      setPassError(true);
+      setPassInput("");
+    }
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -95,6 +116,70 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(total / pageSize);
 
   if (user?.role !== "admin") return null;
+
+  if (!unlocked) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div
+          className="w-full max-w-sm rounded-2xl p-8 text-center"
+          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+        >
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: "rgba(239, 68, 68, 0.1)" }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: "var(--text-primary)", fontFamily: "var(--font-playfair), Georgia, serif" }}
+          >
+            Yönetim Paneli
+          </h2>
+          <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
+            Bu alana erişmek için özel şifreyi girin
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUnlock();
+            }}
+          >
+            <input
+              type="password"
+              value={passInput}
+              onChange={(e) => { setPassInput(e.target.value); setPassError(false); }}
+              placeholder="Özel şifre"
+              autoFocus
+              className="w-full px-4 py-3 rounded-lg text-sm mb-3 outline-none transition-colors"
+              style={{
+                background: "var(--background)",
+                color: "var(--text-primary)",
+                border: passError ? "1.5px solid #ef4444" : "1px solid var(--border)",
+              }}
+            />
+            {passError && (
+              <p className="text-xs mb-3" style={{ color: "#ef4444" }}>
+                Şifre yanlış. Tekrar deneyin.
+              </p>
+            )}
+            <button
+              type="submit"
+              className="w-full py-3 rounded-lg text-sm font-semibold transition-opacity"
+              style={{ background: "var(--accent)", color: "white" }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+            >
+              Giriş Yap
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
