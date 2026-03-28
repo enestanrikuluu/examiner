@@ -197,5 +197,4 @@ def generate_isg(self, template_id: str, request_data: dict, user_id: str) -> di
         )
     except Exception as exc:
         logger.exception("ISG generation failed for template %s", template_id)
-        self.update_state(state="FAILURE", meta={"error": str(exc)})
-        raise
+        raise exc

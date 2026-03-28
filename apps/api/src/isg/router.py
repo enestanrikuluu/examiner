@@ -194,13 +194,18 @@ async def get_task_status(
 
     result = AsyncResult(task_id, app=celery_app)
 
-    if result.state == "PENDING":
+    try:
+        state = result.state
+    except Exception:
+        return ISGTaskStatusOut(task_id=task_id, status="failed", error="Task state unavailable")
+
+    if state == "PENDING":
         return ISGTaskStatusOut(task_id=task_id, status="pending")
 
-    if result.state == "STARTED":
+    if state == "STARTED":
         return ISGTaskStatusOut(task_id=task_id, status="started")
 
-    if result.state == "GENERATING":
+    if state == "GENERATING":
         meta = result.info or {}
         template_id = meta.get("template_id")
         return ISGTaskStatusOut(
@@ -215,7 +220,7 @@ async def get_task_status(
             current_topic=meta.get("current_topic"),
         )
 
-    if result.state == "SUCCESS":
+    if state == "SUCCESS":
         data = result.result or {}
         template_id = data.get("template_id")
         return ISGTaskStatusOut(
@@ -229,12 +234,15 @@ async def get_task_status(
             ],
         )
 
-    if result.state == "FAILURE":
-        error_msg = str(result.info) if result.info else "Unknown error"
+    if state == "FAILURE":
+        try:
+            error_msg = str(result.info) if result.info else "Unknown error"
+        except Exception:
+            error_msg = "Task failed"
         return ISGTaskStatusOut(
             task_id=task_id,
             status="failed",
             error=error_msg,
         )
 
-    return ISGTaskStatusOut(task_id=task_id, status=result.state.lower())
+    return ISGTaskStatusOut(task_id=task_id, status=state.lower())
