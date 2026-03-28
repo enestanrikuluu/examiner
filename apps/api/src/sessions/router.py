@@ -26,6 +26,19 @@ from src.users.models import User
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
+@router.get("/feature-flags", response_model=FeatureFlagsOut)
+async def get_feature_flags(
+    _user: User = Depends(get_current_user),
+) -> FeatureFlagsOut:
+    """Get exam delivery feature flags."""
+    return FeatureFlagsOut(
+        proctoring_enabled=settings.feature_proctoring_enabled,
+        tab_switch_detection=settings.feature_tab_switch_detection,
+        copy_paste_block=settings.feature_copy_paste_block,
+        fullscreen_required=settings.feature_fullscreen_required,
+    )
+
+
 @router.post("", response_model=SessionOut, status_code=201)
 async def create_session(
     body: SessionCreate,
@@ -176,19 +189,6 @@ async def log_integrity_events(
     """Log integrity/proctoring events for the session."""
     service = SessionService(db)
     await service.log_integrity_events(session_id, user.id, body.events)
-
-
-@router.get("/feature-flags", response_model=FeatureFlagsOut)
-async def get_feature_flags(
-    _user: User = Depends(get_current_user),
-) -> FeatureFlagsOut:
-    """Get exam delivery feature flags."""
-    return FeatureFlagsOut(
-        proctoring_enabled=settings.feature_proctoring_enabled,
-        tab_switch_detection=settings.feature_tab_switch_detection,
-        copy_paste_block=settings.feature_copy_paste_block,
-        fullscreen_required=settings.feature_fullscreen_required,
-    )
 
 
 @router.get("/{session_id}/result", response_model=SessionResultOut)
