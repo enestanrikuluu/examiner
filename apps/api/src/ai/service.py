@@ -83,7 +83,7 @@ class AIService:
         )
 
         # 4. Call AI provider
-        provider = self._get_provider("groq")
+        provider = self._get_provider("anthropic")
         trace_id: uuid.UUID | None = None
         ai_response: AIResponse | None = None
         error_msg: str | None = None
