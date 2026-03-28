@@ -1,5 +1,6 @@
 import uuid
 
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.exceptions import ForbiddenError, NotFoundError
@@ -11,6 +12,7 @@ from src.exams.schemas import ExamTemplateCreate, ExamTemplateUpdate
 class ExamTemplateService:
     def __init__(self, db: AsyncSession) -> None:
         self.repo = ExamTemplateRepository(db)
+        self.db = db
 
     async def get_template(self, template_id: uuid.UUID) -> ExamTemplate:
         template = await self.repo.get_by_id(template_id)
@@ -76,8 +78,37 @@ class ExamTemplateService:
         template = await self.get_template(template_id)
         if user_role != "admin" and template.created_by != user_id:
             raise ForbiddenError("You can only delete your own templates")
-        if template.is_published:
+        if user_role != "admin" and template.is_published:
             raise ForbiddenError("Cannot delete a published template")
+
+        from src.adaptive.models import ThetaHistory
+        from src.ai.models import ModelTrace
+        from src.grading.models import Grade
+        from src.sessions.models import ExamSession, Response
+
+        session_ids_q = select(ExamSession.id).where(
+            ExamSession.template_id == template_id
+        )
+        response_ids_q = select(Response.id).where(
+            Response.session_id.in_(session_ids_q)
+        )
+
+        await self.db.execute(
+            delete(Grade).where(Grade.response_id.in_(response_ids_q))
+        )
+        await self.db.execute(
+            delete(ThetaHistory).where(ThetaHistory.session_id.in_(session_ids_q))
+        )
+        await self.db.execute(
+            delete(Response).where(Response.session_id.in_(session_ids_q))
+        )
+        await self.db.execute(
+            delete(ExamSession).where(ExamSession.template_id == template_id)
+        )
+        await self.db.execute(
+            delete(ModelTrace).where(ModelTrace.template_id == template_id)
+        )
+
         await self.repo.delete(template)
 
     async def publish_template(
