@@ -45,6 +45,7 @@ def create_app() -> FastAPI:
     from src.isg.router import router as isg_router
     from src.orgs.router import router as orgs_router
     from src.questions.router import router as questions_router
+    from src.sessions.router import config_router as sessions_config_router
     from src.sessions.router import router as sessions_router
     from src.users.router import router as users_router
 
@@ -54,6 +55,7 @@ def create_app() -> FastAPI:
     app.include_router(orgs_router, prefix=settings.api_prefix)
     app.include_router(exams_router, prefix=settings.api_prefix)
     app.include_router(questions_router, prefix=settings.api_prefix)
+    app.include_router(sessions_config_router, prefix=settings.api_prefix)
     app.include_router(sessions_router, prefix=settings.api_prefix)
     app.include_router(grading_router, prefix=settings.api_prefix)
     app.include_router(ai_router, prefix=settings.api_prefix)

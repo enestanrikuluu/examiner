@@ -25,8 +25,11 @@ from src.users.models import User
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
+# Separate router for static paths that would conflict with /{session_id} parameter
+config_router = APIRouter(prefix="/sessions-config", tags=["sessions"])
 
-@router.get("/feature-flags", response_model=FeatureFlagsOut)
+
+@config_router.get("/feature-flags", response_model=FeatureFlagsOut)
 async def get_feature_flags(
     _user: User = Depends(get_current_user),
 ) -> FeatureFlagsOut:

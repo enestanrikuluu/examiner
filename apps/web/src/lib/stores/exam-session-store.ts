@@ -70,7 +70,7 @@ export const useExamSessionStore = create<ExamSessionState>((set, get) => ({
     try {
       // Load feature flags and resume session in parallel
       const [flagsData, resumeData] = await Promise.all([
-        api.get<FeatureFlags>("/sessions/feature-flags"),
+        api.get<FeatureFlags>("/sessions-config/feature-flags"),
         api.get<{ session: ExamSession; responses: SessionResponse[] }>(
           `/sessions/${sessionId}/resume`
         ),
