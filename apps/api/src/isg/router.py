@@ -15,7 +15,9 @@ from src.isg.schemas import (
     ISGExamCreate,
     ISGExamOut,
     ISGGenerateRequest,
-    ISGGenerateResultOut,
+    ISGGenerateTaskOut,
+    ISGTaskProgressTopic,
+    ISGTaskStatusOut,
     RubricCriterionOut,
     RubricListOut,
     RubricOut,
@@ -127,23 +129,112 @@ async def create_isg_exam(
     return result
 
 
-@router.post("/exams/{template_id}/generate", response_model=ISGGenerateResultOut)
+@router.post("/exams/{template_id}/generate", response_model=ISGGenerateTaskOut)
 async def generate_isg_questions(
     template_id: str,
     data: ISGGenerateRequest,
     user: User = Depends(require_instructor),
     db: AsyncSession = Depends(get_db),
-) -> ISGGenerateResultOut:
-    """Generate questions for all topics in an ISG exam.
+) -> ISGGenerateTaskOut:
+    """Dispatch ISG question generation as a background task.
 
-    Reads the topic distribution from the template and generates questions
-    per topic using the AI service. Questions are automatically added to
-    the template.
+    Returns a task_id immediately. Poll GET /isg/tasks/{task_id} for progress.
     """
-    import uuid
+    import uuid as uuid_mod
 
-    data.template_id = uuid.UUID(template_id)
-    service = ISGService(db)
-    result = await service.generate_questions(data, user_id=user.id)
-    await db.commit()
-    return result
+    from src.core.exceptions import NotFoundError, ValidationError
+    from src.exams.repository import ExamTemplateRepository
+    from src.tasks.isg_generation import generate_isg
+
+    parsed_id = uuid_mod.UUID(template_id)
+    template_repo = ExamTemplateRepository(db)
+    template = await template_repo.get_by_id(parsed_id)
+
+    if template is None:
+        raise NotFoundError("Template not found")
+    if template.created_by != user.id:
+        raise ValidationError("Only the template owner can generate questions")
+
+    isg_settings = template.settings or {}
+    distribution = isg_settings.get("isg_topic_distribution", [])
+    if not distribution:
+        raise ValidationError("Template does not have ISG topic distribution.")
+
+    total_requested = sum(d["question_count"] for d in distribution)
+
+    request_data = {
+        "question_types": data.question_types,
+        "difficulty": data.difficulty,
+        "use_rag": data.use_rag,
+        "rubric_id": data.rubric_id,
+    }
+
+    task = generate_isg.apply_async(
+        args=[str(parsed_id), request_data, str(user.id)],
+        queue="generation",
+    )
+
+    return ISGGenerateTaskOut(
+        task_id=task.id,
+        template_id=parsed_id,
+        total_topics=len(distribution),
+        total_requested=total_requested,
+    )
+
+
+@router.get("/tasks/{task_id}", response_model=ISGTaskStatusOut)
+async def get_task_status(
+    task_id: str,
+    _user: User = Depends(require_instructor),
+) -> ISGTaskStatusOut:
+    """Poll the status of an ISG generation task."""
+    from celery.result import AsyncResult
+
+    from src.tasks.celery_app import celery_app
+
+    result = AsyncResult(task_id, app=celery_app)
+
+    if result.state == "PENDING":
+        return ISGTaskStatusOut(task_id=task_id, status="pending")
+
+    if result.state == "STARTED":
+        return ISGTaskStatusOut(task_id=task_id, status="started")
+
+    if result.state == "GENERATING":
+        meta = result.info or {}
+        template_id = meta.get("template_id")
+        return ISGTaskStatusOut(
+            task_id=task_id,
+            status="generating",
+            template_id=template_id,
+            total_generated=meta.get("total_generated", 0),
+            total_requested=meta.get("total_requested", 0),
+            topic_progress=[
+                ISGTaskProgressTopic(**tp) for tp in meta.get("topic_progress", [])
+            ],
+            current_topic=meta.get("current_topic"),
+        )
+
+    if result.state == "SUCCESS":
+        data = result.result or {}
+        template_id = data.get("template_id")
+        return ISGTaskStatusOut(
+            task_id=task_id,
+            status="completed",
+            template_id=template_id,
+            total_generated=data.get("total_generated", 0),
+            total_requested=data.get("total_requested", 0),
+            topic_progress=[
+                ISGTaskProgressTopic(**tp) for tp in data.get("topic_progress", [])
+            ],
+        )
+
+    if result.state == "FAILURE":
+        error_msg = str(result.info) if result.info else "Unknown error"
+        return ISGTaskStatusOut(
+            task_id=task_id,
+            status="failed",
+            error=error_msg,
+        )
+
+    return ISGTaskStatusOut(task_id=task_id, status=result.state.lower())

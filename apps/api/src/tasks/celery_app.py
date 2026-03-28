@@ -11,6 +11,7 @@ celery_app = Celery(
         "src.tasks.ping",
         "src.tasks.grading",
         "src.tasks.question_generation",
+        "src.tasks.isg_generation",
         "src.tasks.export",
         "src.tasks.calibration",
     ],
@@ -28,6 +29,7 @@ celery_app.conf.update(
     task_routes={
         "src.tasks.grading.*": {"queue": "grading"},
         "src.tasks.question_generation.*": {"queue": "generation"},
+        "src.tasks.isg_generation.*": {"queue": "generation"},
         "src.tasks.export.*": {"queue": "export"},
         "src.tasks.calibration.*": {"queue": "calibration"},
     },

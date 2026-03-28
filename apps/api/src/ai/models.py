@@ -49,7 +49,7 @@ class ModelTrace(Base):
         JSONB, nullable=True
     )
     template_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("exam_templates.id"), nullable=True, index=True
+        UUID(as_uuid=True), ForeignKey("exam_templates.id", ondelete="CASCADE"), nullable=True, index=True
     )
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True

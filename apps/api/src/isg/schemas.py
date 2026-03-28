@@ -133,6 +133,34 @@ class ISGGenerateResultOut(BaseModel):
     trace_ids: list[uuid.UUID]
 
 
+class ISGGenerateTaskOut(BaseModel):
+    """Returned immediately when generation is dispatched to background."""
+    task_id: str
+    template_id: uuid.UUID
+    total_topics: int
+    total_requested: int
+
+
+class ISGTaskProgressTopic(BaseModel):
+    topic_id: str
+    topic_name: str
+    requested_count: int
+    generated_count: int
+    status: str = "pending"  # pending, generating, done, error
+    errors: list[str] = Field(default_factory=list)
+
+
+class ISGTaskStatusOut(BaseModel):
+    task_id: str
+    status: str  # pending, started, generating, completed, failed
+    template_id: uuid.UUID | None = None
+    total_generated: int = 0
+    total_requested: int = 0
+    topic_progress: list[ISGTaskProgressTopic] = Field(default_factory=list)
+    current_topic: str | None = None
+    error: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # Topics listing
 # ---------------------------------------------------------------------------

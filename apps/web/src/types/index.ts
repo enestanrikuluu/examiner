@@ -279,6 +279,33 @@ export interface ISGGenerateResult {
   trace_ids: string[];
 }
 
+export interface ISGGenerateTaskResult {
+  task_id: string;
+  template_id: string;
+  total_topics: number;
+  total_requested: number;
+}
+
+export interface ISGTaskProgressTopic {
+  topic_id: string;
+  topic_name: string;
+  requested_count: number;
+  generated_count: number;
+  status: "pending" | "generating" | "done" | "error";
+  errors: string[];
+}
+
+export interface ISGTaskStatus {
+  task_id: string;
+  status: "pending" | "started" | "generating" | "completed" | "failed";
+  template_id: string | null;
+  total_generated: number;
+  total_requested: number;
+  topic_progress: ISGTaskProgressTopic[];
+  current_topic: string | null;
+  error: string | null;
+}
+
 // Adaptive / IRT types
 
 export interface AdaptiveSession {
