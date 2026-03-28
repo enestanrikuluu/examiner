@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/Toast";
+import { useToastStore } from "@/components/Toast";
 
 interface UserItem {
   id: string;
@@ -35,7 +35,7 @@ function formatDate(dateStr: string) {
 export default function AdminUsersPage() {
   const { user } = useAuthStore();
   const router = useRouter();
-  const toast = useToast();
+  const toast = useToastStore();
   const [users, setUsers] = useState<UserItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -59,7 +59,7 @@ export default function AdminUsersPage() {
       setUsers(data.items);
       setTotal(data.total);
     } catch {
-      toast.error("Kullanıcılar yüklenemedi");
+      toast.add("Kullanıcılar yüklenemedi", "error");
     } finally {
       setLoading(false);
     }
@@ -74,21 +74,21 @@ export default function AdminUsersPage() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       await api.patch(`/users/${userId}`, { role: newRole });
-      toast.success("Rol güncellendi");
+      toast.add("Rol güncellendi", "success");
       setEditingId(null);
       fetchUsers();
     } catch {
-      toast.error("Rol güncellenemedi");
+      toast.add("Rol güncellenemedi", "error");
     }
   };
 
   const handleToggleActive = async (u: UserItem) => {
     try {
       await api.patch(`/users/${u.id}`, { is_active: !u.is_active });
-      toast.success(u.is_active ? "Kullanıcı devre dışı bırakıldı" : "Kullanıcı aktif edildi");
+      toast.add(u.is_active ? "Kullanıcı devre dışı bırakıldı" : "Kullanıcı aktif edildi", "success");
       fetchUsers();
     } catch {
-      toast.error("İşlem başarısız");
+      toast.add("İşlem başarısız", "error");
     }
   };
 
