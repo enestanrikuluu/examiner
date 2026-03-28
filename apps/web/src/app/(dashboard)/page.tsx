@@ -70,7 +70,7 @@ export default function DashboardPage() {
         )}
 
         <Link
-          href="/exams"
+          href="/my-exams"
           className="group rounded-xl p-6 transition-all duration-200"
           style={{ background: "var(--card)", border: "1px solid var(--border-light)" }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(139, 105, 20, 0.08)"; }}
@@ -88,6 +88,29 @@ export default function DashboardPage() {
             Sınav sonuçlarınızı ve performans analizlerinizi inceleyin.
           </p>
         </Link>
+
+        {user && (user.role === "instructor" || user.role === "admin") && (
+          <Link
+            href="/analytics"
+            className="group rounded-xl p-6 transition-all duration-200"
+            style={{ background: "var(--card)", border: "1px solid var(--border-light)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(139, 105, 20, 0.08)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-light)"; e.currentTarget.style.boxShadow = "none"; }}
+          >
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--info-light)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--info)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="2" x2="12" y2="22" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <h3 className="font-semibold" style={{ fontFamily: "var(--font-playfair), Georgia, serif", color: "var(--text-primary)" }}>
+              Analitik
+            </h3>
+            <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
+              Sınav istatistikleri ve performans raporları.
+            </p>
+          </Link>
+        )}
       </div>
     </div>
   );

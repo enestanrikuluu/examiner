@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { useToastStore } from "@/components/Toast";
 import type { ExamTemplate, ExamTemplateListResponse } from "@/types";
 
 export default function ExamsPage() {
   const { user } = useAuthStore();
+  const addToast = useToastStore((s) => s.add);
   const [templates, setTemplates] = useState<ExamTemplate[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,21 @@ export default function ExamsPage() {
 
   const isInstructor =
     user?.role === "instructor" || user?.role === "admin";
+
+  const handleDelete = async (e: React.MouseEvent, templateId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (confirm("Bu sınav şablonunu silmek istediğinize emin misiniz?")) {
+      try {
+        await api.delete(`/templates/${templateId}`);
+        setTemplates(templates.filter((t) => t.id !== templateId));
+        addToast("Sınav şablonu silindi", "success");
+      } catch {
+        addToast("Silme işlemi başarısız", "error");
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -118,22 +135,39 @@ export default function ExamsPage() {
                     <span className="capitalize">{t.exam_mode}</span>
                   </div>
                 </div>
-                <span
-                  className="inline-flex rounded-full px-2 py-1 text-xs font-medium"
-                  style={
-                    t.is_published
-                      ? {
-                          backgroundColor: "var(--success-light)",
-                          color: "var(--success)",
-                        }
-                      : {
-                          backgroundColor: "var(--warning-light)",
-                          color: "var(--warning)",
-                        }
-                  }
-                >
-                  {t.is_published ? "Yayında" : "Taslak"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-flex rounded-full px-2 py-1 text-xs font-medium"
+                    style={
+                      t.is_published
+                        ? {
+                            backgroundColor: "var(--success-light)",
+                            color: "var(--success)",
+                          }
+                        : {
+                            backgroundColor: "var(--warning-light)",
+                            color: "var(--warning)",
+                          }
+                    }
+                  >
+                    {t.is_published ? "Yayında" : "Taslak"}
+                  </span>
+                  {isInstructor && (
+                    <button
+                      onClick={(e) => handleDelete(e, t.id)}
+                      className="p-1.5 rounded hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--danger)" }}
+                      title="Sil"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             </Link>
           ))}

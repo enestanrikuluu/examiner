@@ -96,11 +96,24 @@ class SessionService:
                 f"Cannot submit session in '{session.status}' status"
             )
 
-        return await self.session_repo.update(
+        session = await self.session_repo.update(
             session,
             status="submitted",
             submitted_at=datetime.now(UTC),
         )
+
+        # Auto-grade deterministic questions after submission
+        try:
+            from src.grading.service import GradingService
+            grading = GradingService(self.session_repo.db)
+            await grading.grade_session(session_id, user_id)
+            # Refresh to get updated scores from grading
+            await self.session_repo.db.refresh(session)
+        except Exception:
+            # Don't fail submission if grading fails, session is already marked submitted
+            pass
+
+        return session
 
     async def get_session(
         self, session_id: uuid.UUID, user_id: uuid.UUID, user_role: str
